@@ -67,6 +67,8 @@ export const FasherDraftBanlist: string[] = [
 	'Mewtwo-Mega-Y',
 	'Naganadel',
 	'Necrozma-Dawn-Wings',
+	'Necrozma-Dusk-Mane',
+	'Necrozma-Ultra',
 	'Palkia',
 	'Palkia-Origin',
 	'Pheromosa',
