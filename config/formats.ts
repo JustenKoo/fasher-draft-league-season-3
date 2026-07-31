@@ -5701,7 +5701,9 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 		challengeShow: true,
 		tournamentShow: true,
 		itemClauseDefault: true,
-		ruleset: ['Standard Draft', 'NatDex Mod', '!! Adjust Level = 100', 'Level Clause Mod', '!! EV Limit = 510'],
+		ruleset: [
+			'Standard Draft', 'NatDex Mod', '!! Adjust Level = 100', 'Level Clause Mod', '!! EV Limit = 510', 'Terastal Clause Mod',
+		],
 		banlist: [
 			...FasherDraftBanlist,
 			...FasherDraftItemBanlist.map(item => `item: ${item}`),

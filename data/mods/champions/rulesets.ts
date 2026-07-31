@@ -61,6 +61,15 @@ export const Rulesets: import('../../../sim/dex-formats').ModdedFormatDataTable 
 		},
 		// Implemented in mods/champions/scripts.ts
 	},
+	terastalclausemod: {
+		effectType: 'Rule',
+		name: 'Terastal Clause Mod',
+		desc: "Allows Pok&eacute;mon to Terastallize, using standard Gen 9 Terastallization rules.",
+		onBegin() {
+			this.add('rule', "Terastal Clause Mod: Pokémon can Terastallize.");
+		},
+		// Implemented in mods/champions/scripts.ts
+	},
 	natdexmod: {
 		effectType: 'ValidatorRule',
 		name: 'NatDex Mod',

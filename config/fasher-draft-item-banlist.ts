@@ -3,4 +3,6 @@
 // how the item's name appears in the dex, e.g. "Focus Sash").
 export const FasherDraftItemBanlist: string[] = [
 	'King\'s Rock',
+	'Quick Claw',
+	'Razor Fang',
 ];

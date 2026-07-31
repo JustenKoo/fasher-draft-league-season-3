@@ -178,7 +178,9 @@ export const Scripts: ModdedBattleScriptsData = {
 	},
 	actions: {
 		canTerastallize(pokemon) {
-			return null;
+			if (!this.battle.ruleTable.has('terastalclausemod')) return null;
+			if (pokemon.getItem().zMove || pokemon.canMegaEvo || this.dex.gen !== 9) return null;
+			return pokemon.teraType;
 		},
 		canMegaEvo(pokemon: Pokemon) {
 			const species = pokemon.baseSpecies;

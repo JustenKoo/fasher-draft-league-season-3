@@ -4,4 +4,7 @@
 export const FasherDraftMoveBanlist: string[] = [
 	'Baton Pass',
 	'Last Respects',
+	'Hidden Power',
+	'Shed Tail',
+	'Rage Fist',
 ];
