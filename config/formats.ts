@@ -18,6 +18,8 @@ The column value will be ignored for repeat sections.
 */
 
 import { FasherDraftBanlist } from './fasher-draft-banlist';
+import { FasherDraftItemBanlist } from './fasher-draft-item-banlist';
+import { FasherDraftMoveBanlist } from './fasher-draft-move-banlist';
 
 export const Formats: import('../sim/dex-formats').FormatList = [
 
@@ -5690,7 +5692,11 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 		searchShow: false,
 		itemClauseDefault: true,
 		ruleset: ['Standard Draft', 'NatDex Mod'],
-		banlist: [...FasherDraftBanlist],
+		banlist: [
+			...FasherDraftBanlist,
+			...FasherDraftItemBanlist.map(item => `item: ${item}`),
+			...FasherDraftMoveBanlist.map(move => `move: ${move}`),
+		],
 		checkCanLearn(move, species, setSources, set) {
 			if (!this.ruleTable.has('natdexmod')) return this.checkCanLearn(move, species, setSources, set);
 			const TeamValidator: typeof import('../sim/team-validator').TeamValidator =

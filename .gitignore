@@ -1,6 +1,8 @@
 /config/*
 !/config/formats.ts
 !/config/fasher-draft-banlist.ts
+!/config/fasher-draft-item-banlist.ts
+!/config/fasher-draft-move-banlist.ts
 /logs/**/*
 /test/modlogs
 /test/replays/*.html
