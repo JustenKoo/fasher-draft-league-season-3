@@ -1145,7 +1145,9 @@ export class TeamValidator {
 		const dex = this.dex;
 
 		const allowAVs = !ruleTable.has('lgpenormalrules');
-		const useStatPoints = dex.currentMod.startsWith('champions');
+		// Fasher Draft League opts out of Champions mod's Stat Points system
+		// in favor of traditional EVs (see 'Level Clause Mod' + EV Limit override).
+		const useStatPoints = dex.currentMod.startsWith('champions') && !this.format.id.includes('fasherdraftleague');
 		const evLimit = ruleTable.evLimit;
 		const canBottleCap = dex.gen >= 7 && (set.level >= (dex.gen < 9 ? 100 : 50) || !ruleTable.has('obtainablemisc'));
 
