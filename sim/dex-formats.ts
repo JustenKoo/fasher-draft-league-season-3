@@ -663,9 +663,9 @@ export class DexFormats {
 			if (this.rulesetCache.has(id)) throw new Error(`Format #${i + 1} has a duplicate ID: '${id}'`);
 			format.effectType = 'Format';
 			format.baseRuleset = format.ruleset ? format.ruleset.slice() : [];
-			if (format.challengeShow === undefined) format.challengeShow = true;
-			if (format.searchShow === undefined) format.searchShow = true;
-			if (format.tournamentShow === undefined) format.tournamentShow = true;
+			if (format.challengeShow === undefined) format.challengeShow = false;
+			if (format.searchShow === undefined) format.searchShow = false;
+			if (format.tournamentShow === undefined) format.tournamentShow = false;
 			if (format.bestOfDefault === undefined) format.bestOfDefault = false;
 			if (format.teraPreviewDefault === undefined) format.teraPreviewDefault = false;
 			if (format.itemClauseDefault === undefined) format.itemClauseDefault = false;
