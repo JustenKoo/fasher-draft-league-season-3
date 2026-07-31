@@ -5691,7 +5691,7 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 		mod: 'champions',
 		searchShow: false,
 		itemClauseDefault: true,
-		ruleset: ['Standard Draft', 'NatDex Mod'],
+		ruleset: ['Standard Draft', 'NatDex Mod', '!! Adjust Level = 100'],
 		banlist: [
 			...FasherDraftBanlist,
 			...FasherDraftItemBanlist.map(item => `item: ${item}`),
