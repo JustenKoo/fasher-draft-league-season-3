@@ -1,5 +1,6 @@
 /config/*
 !/config/formats.ts
+!/config/fasher-draft-banlist.ts
 /logs/**/*
 /test/modlogs
 /test/replays/*.html

@@ -17,6 +17,8 @@ New sections will be added to the bottom of the specified column.
 The column value will be ignored for repeat sections.
 */
 
+import { FasherDraftBanlist } from './fasher-draft-banlist';
+
 export const Formats: import('../sim/dex-formats').FormatList = [
 
 	// S/V Singles
@@ -5688,6 +5690,7 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 		searchShow: false,
 		itemClauseDefault: true,
 		ruleset: ['Standard Draft', 'NatDex Mod'],
+		banlist: [...FasherDraftBanlist],
 		checkCanLearn(move, species, setSources, set) {
 			if (!this.ruleTable.has('natdexmod')) return this.checkCanLearn(move, species, setSources, set);
 			const TeamValidator: typeof import('../sim/team-validator').TeamValidator =
