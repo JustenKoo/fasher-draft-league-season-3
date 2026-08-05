@@ -4,6 +4,8 @@
 !/config/fasher-draft-item-banlist.ts
 !/config/fasher-draft-move-banlist.ts
 !/config/config-example.js
+!/config/chat-plugins/
+!/config/chat-plugins/README.md
 /logs/**/*
 /test/modlogs
 /test/replays/*.html
