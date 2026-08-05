@@ -6,6 +6,12 @@
 !/config/config-example.js
 !/config/chat-plugins/
 !/config/chat-plugins/README.md
+# chat-plugins JSON files are auto-generated runtime state (mafia logs,
+# sample teams, etc.), not source - same class as databases/*.db*.
+/config/chat-plugins/*.json
+# server/static holds the built, patched client copied in at deploy time
+# (single-tunnel architecture) - build output, not source, same as dist/.
+/server/static/*
 /logs/**/*
 /test/modlogs
 /test/replays/*.html

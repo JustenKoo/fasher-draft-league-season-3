@@ -1,15 +1,178 @@
 <!DOCTYPE html>
-<script>
-var host = document.location.hostname.replace(/-/g, '=').replace(/\./g, '-').replace(/:/g, '--').replace(/=/g, '---');
-var currentPort = document.location.port || (document.location.protocol === 'https:' ? '443' : '80');
-var defaultPort = document.location.protocol === 'https:' ? '443' : '8000';
-var suffix = (currentPort !== defaultPort ? '--' + currentPort : '');
-var protocol = 'https:';
-if (document.location.protocol !== 'https:' && host !== 'localhost') {
-	protocol = 'http:';
-	suffix += '.insecure';
-}
-document.location.replace(protocol + '//' + host + suffix + '.psim.us' + document.location.pathname);
-</script>
-<p>This is a <a href="http://www.pokemonshowdown.com">Pok&eacute;mon Showdown</a> server!</p>
-<noscript><p>You'll need to <a href="http://enable-javascript.com/en/">enable JavaScript</a> to play.</p></noscript>
+<html><head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0" />
+	<title>Showdown!</title>
+	<link rel="shortcut icon" href="favicon.ico" id="dynamic-favicon" />
+	<link rel="stylesheet" href="style/battle.css" />
+	<link rel="stylesheet" href="style/client2.css" />
+	<link rel="stylesheet" href="style/utilichart.css" />
+	<meta name="robots" content="noindex" />
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+	<!--[if lte IE 8]><script>
+		window.Config = {"oldie": true};
+	</script><![endif]-->
+</head><body>
+	<div id="ps-frame">
+		<div id="header" class="header">
+			<div class="maintabbarbottom"></div>
+			<img class="logo" src="https://play.pokemonshowdown.com/favicon-256.png" alt="Pokémon Showdown! (beta)" width="50" height="50">
+		</div>
+		<div class="ps-room scrollable" id="room-">
+			<div class="mainmenu">
+				<div id="loading-message" class="mainmessage">Loading... <noscript>FAILED<br /><br />Pok&eacute;mon Showdown requires JavaScript.</noscript></div>
+			</div>
+			<div class="mainmenufooter">
+				<div class="bgcredit"></div>
+				<small>
+					<a href="//dex.pokemonshowdown.com/" target="_blank">Pok&eacute;dex</a> | <a href="//replay.pokemonshowdown.com/" target="_blank">Replays</a> | <a href="http://smogon.com/forums/" target="_blank">Forum</a><br />
+					<a href="//pokemonshowdown.com/rules" target="_blank">Rules</a> | <a href="//pokemonshowdown.com/credits" target="_blank">Credits</a> | <a href="//pokemonshowdown.com/privacy" target="_blank">Privacy</a>
+				</small>
+			</div>
+		</div>
+	</div>
+	<script>
+		function linkStyle(url) {
+			var linkEl = document.createElement('link');
+			linkEl.rel = 'stylesheet';
+			linkEl.href = url;
+			document.head.appendChild(linkEl);
+		}
+		linkStyle("style/sim-types.css");
+		linkStyle("style/teambuilder.css");
+		linkStyle("style/battle-search.css");
+		linkStyle("style/font-awesome.css");
+	</script>
+	<script src="https://play.pokemonshowdown.com/config/config.js"></script>
+	<script>
+		if (!window.Config) {
+			// offline
+			window.Config = {
+				version: '0',
+				bannedHosts: [],
+				whitelist: [],
+				routes: {
+					root: "pokemonshowdown.com",
+					client: "play.pokemonshowdown.com",
+					dex: "dex.pokemonshowdown.com",
+					replays: "replay.pokemonshowdown.com",
+					users: "pokemonshowdown.com/users"
+				},
+				defaultserver: {
+					id: 'showdown',
+					host: 'sim3.psim.us',
+					port: 443,
+					httpport: 8000,
+					altport: 80,
+					registered: true
+				},
+				customcolors: {}
+			};
+		}
+		function loadRemoteData(src) {
+			var scriptEl = document.createElement('script');
+			scriptEl.src = src.replace(/.*\/(data|js)\//g, 'https://play.pokemonshowdown.com/$1/');
+			document.head.appendChild(scriptEl);
+		}
+		Config.testclient = true;
+		(function() {
+			if (location.search !== '') {
+				var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
+				if (m) {
+					Config.defaultserver = {
+						id: m[1],
+						host: m[2],
+						port: (m[3] && parseInt(m[3].substr(1))) || 8000
+					};
+				} else {
+					alert('Unrecognised query string syntax: ' + location.search);
+				}
+			} else {
+				// Fasher Draft League: default to the same origin this page was
+				// loaded from (instead of hardcoding localhost), so this same
+				// build works whether it's loaded locally, through a tunnel, or
+				// embedded directly in the game server's own static file
+				// serving. httpport must be truthy for the client to use
+				// wss:// instead of ws:// - required when served over https
+				// (e.g. through the Cloudflare tunnel, which terminates TLS at
+				// the edge even though our backend only speaks plain http/ws).
+				var isHttps = document.location.protocol === 'https:';
+				var port = document.location.port ? parseInt(document.location.port) : (isHttps ? 443 : 8000);
+				Config.defaultserver = {
+					id: document.location.hostname,
+					host: document.location.hostname,
+					port: port,
+					httpport: isHttps ? port : undefined
+				};
+			}
+		})();
+	</script>
+	<script nomodule src="/js/lib/ps-polyfill.js"></script>
+	<script src="../config/testclient-key.js"></script>
+	<script src="js/client-core.js" onerror="alert('You must build the client with `node build` before using testclient.html')"></script>
+
+	<script src="js/battle-dex-data.js"></script>
+	<script src="js/battle-dex.js"></script>
+	<script src="js/battle-teams.js"></script>
+	<script src="js/battle-text-parser.js"></script>
+	<script src="js/client-main.js"></script>
+	<script nomodule src="js/lib/sockjs-1.4.0-nwjsfix.min.js"></script>
+	<script src="js/client-connection.js"></script>
+	<script> Net.defaultRoute = 'https://play.pokemonshowdown.com'; </script>
+
+	<script src="js/lib/preact.min.js"></script>
+	<script src="js/panels.js"></script>
+	<script src="js/panel-mainmenu.js"></script>
+	<script src="js/panel-rooms.js"></script>
+	<script src="js/panel-topbar.js"></script>
+	<!-- at this point, the main view is loaded and usable -->
+
+	<script src="js/lib/html-css-sanitizer-minified.js"></script>
+	<script src="src/battle-log-misc.js"></script>
+	<script src="js/server/chat-formatter.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="js/battle-log.js"></script>
+
+	<script src="js/miniedit.js"></script>
+	<script src="js/panel-chat-tournament.js"></script>
+	<script src="js/panel-chat.js"></script>
+	<!-- at this point, chatrooms are usable -->
+
+	<script src="js/panel-popups.js"></script>
+	<script src="js/panel-page.js?"></script>
+	<script src="js/panel-resources.js?" onload="console.log('loaded')"></script>
+	<script src="js/panel-ladder.js?"></script>
+
+	<script src="js/battle-sound.js"></script>
+	<script src="js/lib/jquery-2.2.4.min.js"></script>
+	<script src="data/graphics.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/text.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/text-afd.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/commands.js?" onerror="loadRemoteData(this.src)"></script>
+	<script src="js/battle-tooltips.js"></script>
+	<script src="js/battle.js"></script>
+	<script src="js/battle-choices.js"></script>
+	<script src="js/panel-battle.js"></script>
+
+	<script src="data/pokedex.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/moves.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/items.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/abilities.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/search-index.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/teambuilder-tables.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="js/panel-teamdropdown.js"></script>
+	<script src="js/panel-teambuilder.js?"></script>
+	<script src="js/battle-dex-search.js?"></script>
+	<script src="js/battle-searchresults.js?"></script>
+	<script src="js/battle-team-editor.js?"></script>
+	<script src="js/panel-teambuilder-team.js?"></script>
+
+	<script src="https://play.pokemonshowdown.com/data/pokedex-mini.js"></script>
+	<script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js"></script>
+	<script src="data/typechart.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/aliases.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="js/lib/d3.v3.min.js"></script>
+	<script src="js/lib/color-thief.min.js"></script>
+
+	<script src="js/client-endload.js?"></script>
+
+</body></html>
