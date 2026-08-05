@@ -32,6 +32,10 @@ const findFilesForPath = path => {
 		// race between readdirSync and statSync. Please, at some point someone
 		// fix this function to be more robust.
 		if (cur.includes('node_modules') || cur.includes("/logs") || cur.includes("/databases")) continue;
+		// server/static holds served static assets (e.g. a built client), never
+		// TS/TSX sources - same rationale as the exclusions above: needlessly
+		// slow to traverse, and fragile if anything in there changes mid-scan.
+		if (cur.includes("/server/static")) continue;
 		if (fs.statSync(cur).isDirectory()) {
 			out.push(...findFilesForPath(cur));
 		} else if (shouldBeCompiled(cur)) {
