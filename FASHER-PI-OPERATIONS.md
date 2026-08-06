@@ -78,15 +78,21 @@ enough, since those files are gitignored and only ever produced by
 ```
 cd ~/pokemon-showdown-client
 git pull
-node build-tools/build-indexes
+node build indexes
 cp -r play.pokemonshowdown.com/* ~/pokemon-showdown-master/server/static/
 ```
-This pulls fresh data from the server repo (via `caches/pokemon-showdown`)
-and regenerates every `data/*.js` file, not just the one you changed — a
-bit slower than `node build`, but the only way to be sure a generated data
-file isn't silently stale. If in doubt, just always use this instead of
-`node build` for client deploys — it's strictly a superset of what `node
-build` does.
+**Important:** this must be `node build indexes` (through the wrapper
+script), **not** `node build-tools/build-indexes` run directly — that
+second form only regenerates data files and silently skips the actual
+TypeScript compile step, so any `.tsx`/`.ts` source changes in the same
+deploy would never make it into the built `.js` files. (Hit this exact
+bug once already - the data file updated fine but a whole feature's UI
+code silently never got compiled.) `node build indexes` does both: it's
+the wrapper script's own way of saying "rebuild data, then compile" -
+equivalent to running `build-tools/build-indexes` followed by a normal
+`node build`, in one command. If in doubt, always use `node build
+indexes` for client deploys instead of plain `node build` - it's a
+strict superset.
 
 **Editing the ban lists** (`config/fasher-draft-banlist.ts`,
 `fasher-draft-item-banlist.ts`, `fasher-draft-move-banlist.ts`): edit on your
