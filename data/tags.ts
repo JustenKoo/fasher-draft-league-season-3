@@ -66,6 +66,16 @@ export const Tags: { [id: IDEntry]: TagData } = {
 		speciesFilter: species => species.tags.includes("Pokestar"),
 	},
 
+	// Item tags
+	// ---------
+	// Fasher Draft League: lets a complex ban target "any Z-crystal" (e.g.
+	// "Ursaluna-Bloodmoon + tag:zcrystal") without enumerating all 35 of
+	// them individually.
+	zcrystal: {
+		name: "Z-Crystal",
+		genericFilter: thing => thing.effectType === 'Item' && !!(thing as Item).zMove,
+	},
+
 	// Move tags
 	// ---------
 	zmove: {

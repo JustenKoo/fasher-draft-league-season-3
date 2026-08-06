@@ -1946,6 +1946,10 @@ export class TeamValidator {
 		const ruleTable = this.ruleTable;
 
 		setHas['item:' + item.id] = true;
+		// Lets complex bans target "any Z-crystal" (e.g. "Species + tag:zcrystal")
+		// instead of needing to enumerate all ~35 Z-crystal items individually -
+		// same pattern as the tag:mega/tag:gigantamax species tags above.
+		if (item.zMove) setHas['tag:zcrystal'] = true;
 
 		let banReason = ruleTable.check('item:' + (item.id || 'noitem'));
 		if (banReason) {

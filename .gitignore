@@ -3,6 +3,7 @@
 !/config/fasher-draft-banlist.ts
 !/config/fasher-draft-item-banlist.ts
 !/config/fasher-draft-move-banlist.ts
+!/config/fasher-draft-complex-banlist.ts
 !/config/config-example.js
 !/config/chat-plugins/
 !/config/chat-plugins/README.md

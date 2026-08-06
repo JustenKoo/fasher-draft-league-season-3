@@ -20,6 +20,7 @@ The column value will be ignored for repeat sections.
 import { FasherDraftBanlist } from './fasher-draft-banlist';
 import { FasherDraftItemBanlist } from './fasher-draft-item-banlist';
 import { FasherDraftMoveBanlist } from './fasher-draft-move-banlist';
+import { FasherDraftComplexBanlist } from './fasher-draft-complex-banlist';
 
 export const Formats: import('../sim/dex-formats').FormatList = [
 
@@ -5710,6 +5711,7 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 			...FasherDraftBanlist,
 			...FasherDraftItemBanlist.map(item => `item: ${item}`),
 			...FasherDraftMoveBanlist.map(move => `move: ${move}`),
+			...FasherDraftComplexBanlist,
 		],
 		checkCanLearn(move, species, setSources, set) {
 			if (!this.ruleTable.has('natdexmod')) return this.checkCanLearn(move, species, setSources, set);
