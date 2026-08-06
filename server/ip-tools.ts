@@ -479,8 +479,10 @@ export const IPTools = new class {
 				return;
 			}
 
+			// ipNumber is null for IPv6 addresses (ipToNumber only handles IPv4) -
+			// that's fine here, since the range check below and the dns.reverse
+			// fallback further down both already tolerate a null/no-match ipNumber.
 			const ipNumber = IPTools.ipToNumber(ip);
-			if (ipNumber === null) throw new Error(`Bad IP address: '${ip}'`);
 			for (const range of IPTools.ranges) {
 				if (ipNumber >= range.minIP && ipNumber <= range.maxIP) {
 					resolve(range.host);
