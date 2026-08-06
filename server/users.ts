@@ -49,6 +49,7 @@ import { Utils, type ProcessManager } from '../lib';
 import {
 	Auth, GlobalAuth, PLAYER_SYMBOL, HOST_SYMBOL, type RoomPermission, type GlobalPermission,
 } from './user-groups';
+import { FasherAccounts } from './fasher-accounts';
 
 const MINUTES = 60 * 1000;
 const IDLE_TIMER = 60 * MINUTES;
@@ -641,6 +642,10 @@ export class User extends Chat.MessageContext {
 				this.send(`|nametaken|${name}|You need an authentication token to log in as a trusted user.`);
 				return null;
 			}
+			if (FasherAccounts.hasPassword(userid)) {
+				this.send(`|nametaken|${name}|This name is password-protected. Log in with: /pwlogin ${name},PASSWORD`);
+				return null;
+			}
 			return '1';
 		}
 
@@ -716,8 +721,12 @@ export class User extends Chat.MessageContext {
 	 * @param token Signed assertion returned from login server
 	 * @param newlyRegistered Make sure this account will identify as registered
 	 * @param connection The connection asking for the rename
+	 * @param preVerified Only settable by server-side code (never derived
+	 *   from client input) - skips validateToken entirely. Used by
+	 *   /pwlogin (server/chat-plugins/fasher-pwlogin.ts) after it's
+	 *   already checked the password against config/fasher-accounts.json.
 	 */
-	async rename(name: string, token: string, newlyRegistered: boolean, connection: Connection) {
+	async rename(name: string, token: string, newlyRegistered: boolean, connection: Connection, preVerified = false) {
 		let userid = toID(name);
 		if (userid !== this.id) {
 			for (const roomid of this.games) {
@@ -765,7 +774,7 @@ export class User extends Chat.MessageContext {
 			}
 		}
 
-		const userType = await this.validateToken(token, name, userid, connection);
+		const userType = preVerified ? '1' : await this.validateToken(token, name, userid, connection);
 		if (userType === null) return;
 		if (userType === '1') newlyRegistered = false;
 
