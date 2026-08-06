@@ -5711,7 +5711,6 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 			...FasherDraftBanlist,
 			...FasherDraftItemBanlist.map(item => `item: ${item}`),
 			...FasherDraftMoveBanlist.map(move => `move: ${move}`),
-			...FasherDraftComplexBanlist,
 		],
 		checkCanLearn(move, species, setSources, set) {
 			if (!this.ruleTable.has('natdexmod')) return this.checkCanLearn(move, species, setSources, set);
@@ -5723,6 +5722,12 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 			return natDex;
 		},
 		onValidateSet(set) {
+			for (const ban of FasherDraftComplexBanlist) {
+				if (this.toID(set.species) !== this.toID(ban.species)) continue;
+				if (ban.ability && this.toID(set.ability) === this.toID(ban.ability)) return [ban.message];
+				if (ban.zMoveBanned && set.item && this.dex.items.get(set.item).zMove) return [ban.message];
+			}
+
 			if (!this.ruleTable.has('natdexmod')) return;
 			const species = this.dex.species.get(set.species);
 			let tier = species.tier;

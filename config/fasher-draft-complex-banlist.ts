@@ -1,22 +1,30 @@
 // Complex bans for Fasher Draft League: banning a specific combination
-// (species + ability, species + item, etc.) rather than the whole species.
-// This uses Pokemon Showdown's own built-in complex ban syntax - each
-// entry is "X + Y" (all of the joined things must be true together for it
-// to be banned), fed directly into the format's banlist.
+// (species + ability, species + Z-move access, etc.) rather than the whole
+// species, with a custom error message instead of PS's generic
+// "X has the combination of Y + Z, which is banned." wording.
 //
-// Ability ban example: 'Zygarde + Power Construct' bans Zygarde from
-// having Power Construct specifically (Aura Break is still fine).
+// Ability ban: set `ability` to the ability's name (must match how it
+// appears in the dex, e.g. "Power Construct").
 //
-// Item ban example: 'Ursaluna-Bloodmoon + Choice Band' bans that one
-// item on that one species.
-//
-// Z-move ban: use 'tag:zcrystal' to match ANY of the ~35 Z-crystal items
-// at once, instead of listing them all individually - e.g.
-// 'Ursaluna-Bloodmoon + tag:zcrystal' bans it from holding any Z-crystal,
-// which is what actually enables Z-moves. (This tag is defined in
-// data/tags.ts and wired into sim/team-validator.ts's checkItem - a real
-// validator feature, not just a Fasher-specific hack.)
-export const FasherDraftComplexBanlist: string[] = [
-	'Zygarde + Power Construct',
-	'Ursaluna-Bloodmoon + tag:zcrystal',
+// Z-move ban: set `zMoveBanned: true` - this bans holding ANY of the ~35
+// Z-crystal items, not just one specific crystal (checked via the item's
+// own `zMove` flag, same pattern already used elsewhere in this codebase).
+export interface FasherComplexBan {
+	species: string;
+	ability?: string;
+	zMoveBanned?: boolean;
+	message: string;
+}
+
+export const FasherDraftComplexBanlist: FasherComplexBan[] = [
+	{
+		species: 'Zygarde',
+		ability: 'Power Construct',
+		message: "Zygarde's ability Power Construct is banned.",
+	},
+	{
+		species: 'Ursaluna-Bloodmoon',
+		zMoveBanned: true,
+		message: "Ursaluna-Bloodmoon is Z-Move banned.",
+	},
 ];
