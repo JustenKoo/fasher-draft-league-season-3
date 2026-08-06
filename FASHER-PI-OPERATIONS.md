@@ -71,6 +71,23 @@ cp -r play.pokemonshowdown.com/* ~/pokemon-showdown-master/server/static/
 No restart needed for a client-only change — it's a static file swap, so just
 hard-refresh the browser tab.
 
+**If the change touches any generated `data/*.js` file** (teambuilder tier
+data, `fasher-draft-points.js`, etc.) — a plain `node build` is **not**
+enough, since those files are gitignored and only ever produced by
+`build-indexes`, not by the normal TS compile. Use this instead:
+```
+cd ~/pokemon-showdown-client
+git pull
+node build-tools/build-indexes
+cp -r play.pokemonshowdown.com/* ~/pokemon-showdown-master/server/static/
+```
+This pulls fresh data from the server repo (via `caches/pokemon-showdown`)
+and regenerates every `data/*.js` file, not just the one you changed — a
+bit slower than `node build`, but the only way to be sure a generated data
+file isn't silently stale. If in doubt, just always use this instead of
+`node build` for client deploys — it's strictly a superset of what `node
+build` does.
+
 **Editing the ban lists** (`config/fasher-draft-banlist.ts`,
 `fasher-draft-item-banlist.ts`, `fasher-draft-move-banlist.ts`): edit on your
 dev machine, commit, push, then `git pull` + restart on the Pi as above.
