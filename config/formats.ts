@@ -5703,7 +5703,8 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 		itemClauseDefault: true,
 		ruleset: [
 			'Standard Draft', 'NatDex Mod', '!! Adjust Level = 100', 'Level Clause Mod', '!! EV Limit = 510', 'Terastal Clause Mod',
-			'Overflow Stat Mod',
+			'Overflow Stat Mod', 'Timer Starting = 180', 'Timer Max Per Turn = 180', 'Timer Max First Turn = 180', 'Timer Grace = 60',
+			'Tera Type Preview',
 		],
 		banlist: [
 			...FasherDraftBanlist,
