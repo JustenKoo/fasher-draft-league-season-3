@@ -6,6 +6,11 @@
 !/config/config-example.js
 !/config/chat-plugins/
 !/config/chat-plugins/README.md
+!/config/ladders/
+!/config/ladders/README.md
+# ladder .tsv files are runtime rating data generated per-deployment, not
+# source - same class as config/chat-plugins/*.json and databases/*.db*.
+/config/ladders/*.tsv
 # chat-plugins JSON files are auto-generated runtime state (mafia logs,
 # sample teams, etc.), not source - same class as databases/*.db*.
 /config/chat-plugins/*.json
