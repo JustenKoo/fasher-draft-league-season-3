@@ -75,6 +75,55 @@ hard-refresh the browser tab.
 `fasher-draft-item-banlist.ts`, `fasher-draft-move-banlist.ts`): edit on your
 dev machine, commit, push, then `git pull` + restart on the Pi as above.
 
+## Syncing tier data from official Smogon (recurring, do periodically)
+
+Our format's tiers (`data/formats-data.ts`, `data/mods/champions/formats-data.ts`)
+are a static snapshot from whenever this repo was forked — they do **not**
+update on their own. Official Champions tiers actually move fairly often:
+roughly monthly scheduled shifts, plus ad-hoc suspect-test bans in between
+(historically about every 2 weeks combining both). **Do this sync monthly at
+minimum; every 2 weeks to also catch the ad-hoc bans.**
+
+This only ever touches those two tier-data files — it has no overlap with
+`config/formats.ts`, the ban lists, or any mod/ruleset customizations, so
+it's safe to run without reviewing a diff first (though it's fine to check
+`git diff` before committing if you want to see what changed).
+
+Run this **on the dev machine** (not the Pi — same as all other code
+changes, it gets pushed and pulled down after):
+
+```
+cd ~/pokemon-showdown-master   (or wherever the repo is checked out locally)
+git fetch upstream
+git checkout upstream/master -- data/formats-data.ts data/mods/champions/formats-data.ts
+git commit -m "Sync Champions/NatDex tier data from upstream Smogon repo"
+git push
+```
+
+(If `upstream` isn't set up yet on a given machine: `git remote add upstream https://github.com/smogon/pokemon-showdown.git`.)
+
+Then deploy the server side as usual:
+```
+# on the Pi
+cd ~/pokemon-showdown-master
+git pull
+sudo systemctl restart pokemon-showdown
+```
+
+And regenerate + redeploy the client's teambuilder data (tier display is
+baked into `data/teambuilder-tables.js` at build time, so a plain `node
+build` is **not** enough here — this needs the full data regeneration):
+```
+# on the dev machine
+cd ~/pokemon-showdown-client
+node build-tools/build-indexes
+cp -r play.pokemonshowdown.com/data/. ~/pokemon-showdown-master/server/static/data/
+```
+Then push/pull that `server/static/` copy to the Pi the same way as any
+other client deploy (see "Deploying changes" above) — or just re-run
+`build-indexes` and the copy directly on the Pi if the client repo is
+checked out there too.
+
 ## One-time / rarely-touched config
 
 `config/config.js` is **gitignored and per-deployment** — it does NOT update
