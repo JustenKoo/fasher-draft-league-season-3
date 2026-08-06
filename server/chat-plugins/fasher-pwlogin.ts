@@ -22,7 +22,12 @@ export const commands: Chat.ChatCommands = {
 
 		if (FasherAccounts.hasPassword(userid)) {
 			if (!FasherAccounts.checkPassword(userid, password)) {
-				throw new Chat.ErrorMessage(`Incorrect password for '${name}'.`);
+				// Sent as |nametaken| (not a thrown ErrorMessage) so the
+				// client's login dialog reopens with the password field
+				// still showing, instead of just a disconnected popup -
+				// see the 'nametaken' case in client-main.ts.
+				user.send(`|nametaken|${name}|Incorrect password for '${name}'.`);
+				return;
 			}
 		} else {
 			FasherAccounts.setPassword(userid, password);
