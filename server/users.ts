@@ -638,12 +638,18 @@ export class User extends Chat.MessageContext {
 	}
 	async validateToken(token: string, name: string, userid: ID, connection: Connection) {
 		if (!token && Config.noguestsecurity) {
-			if (Users.isTrusted(userid)) {
-				this.send(`|nametaken|${name}|You need an authentication token to log in as a trusted user.`);
-				return null;
-			}
+			// Fasher Draft League: check for a local password first, even for
+			// trusted (ranked) users - a name with a password set can log in
+			// through /pwlogin either way, so surfacing that lets the client
+			// show the normal password-entry dialog instead of a dead-end
+			// error. A trusted name with no password yet still falls through
+			// to the block below - never auto-claimable, unlike untrusted names.
 			if (FasherAccounts.hasPassword(userid)) {
 				this.send(`|nametaken|${name}|This name is password-protected. Log in with: /pwlogin ${name},PASSWORD`);
+				return null;
+			}
+			if (Users.isTrusted(userid)) {
+				this.send(`|nametaken|${name}|You need an authentication token to log in as a trusted user.`);
 				return null;
 			}
 			return '1';
