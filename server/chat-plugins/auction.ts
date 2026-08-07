@@ -468,7 +468,7 @@ export class Auction extends Rooms.SimpleRoomGame {
 	addManagers(teamName: string, users: string[]) {
 		const team = this.teams.get(toID(teamName));
 		if (!team) throw new Chat.ErrorMessage(`Team "${teamName}" not found.`);
-		const problemUsers = users.filter(user => !toID(user) || toID(user).length > 18);
+		const problemUsers = users.filter(user => !toID(user) || toID(user).length > 25);
 		if (problemUsers.length) {
 			throw new Chat.ErrorMessage(`Invalid usernames: ${problemUsers.join(', ')}`);
 		}

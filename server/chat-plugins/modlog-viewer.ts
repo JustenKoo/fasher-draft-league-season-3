@@ -368,8 +368,8 @@ export const pages: Chat.PageTable = {
 	async modlogstats(query, user) {
 		this.checkCan('lock');
 		const target = toID(query.shift());
-		if (!target || target.length > 18) {
-			throw new Chat.ErrorMessage(`Invalid userid - must be between 1 and 18 characters long.`);
+		if (!target || target.length > 25) {
+			throw new Chat.ErrorMessage(`Invalid userid - must be between 1 and 25 characters long.`);
 		}
 		this.title = `[Modlog Stats] ${target}`;
 		this.setHTML(`<div class="pad"><strong>Running modlog search...</strong></div>`);

@@ -456,7 +456,7 @@ export const commands: Chat.ChatCommands = {
 			this.checkCan('rangeban');
 			const [name, rawStanding, reason] = Utils.splitFirst(target, ',', 2).map(f => f.trim());
 			const id = toID(name);
-			if (!id || id.length > 18) {
+			if (!id || id.length > 25) {
 				return this.popupReply('Invalid username: ' + name);
 			}
 			const standingNum = parseInt(rawStanding);

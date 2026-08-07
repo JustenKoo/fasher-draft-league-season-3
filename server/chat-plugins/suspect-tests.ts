@@ -154,7 +154,7 @@ export const commands: Chat.ChatCommands = {
 
 			const userid = toID(target);
 
-			if (!userid || userid.length > 18) {
+			if (!userid || userid.length > 25) {
 				if (suspectTests.whitelist.length) {
 					this.sendReplyBox(`Current users with /suspects access: <username>${suspectTests.whitelist.join('</username>, <username>')}</username>`);
 				}
@@ -177,7 +177,7 @@ export const commands: Chat.ChatCommands = {
 
 			const userid = toID(target);
 
-			if (!userid || userid.length > 18) {
+			if (!userid || userid.length > 25) {
 				return this.parse(`/help suspects`);
 			}
 

@@ -267,7 +267,7 @@ export const commands: Chat.ChatCommands = {
 		async add(target, room, user, connection) {
 			Friends.checkCanUse(this);
 			target = toID(target);
-			if (target.length > 18) {
+			if (target.length > 25) {
 				throw new Chat.ErrorMessage(this.tr`That name is too long - choose a valid name.`);
 			}
 			if (!target) return this.parse('/help friends');

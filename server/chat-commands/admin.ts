@@ -267,13 +267,13 @@ export const commands: Chat.ChatCommands = {
 		let [userid, source] = this.splitOne(target).map(toID);
 		if (cmd.startsWith('d')) {
 			source = '';
-		} else if (!source || source.length > 18) {
+		} else if (!source || source.length > 25) {
 			throw new Chat.ErrorMessage(
-				`Specify a source username to take the color from. Name must be <19 characters.`
+				`Specify a source username to take the color from. Name must be <26 characters.`
 			);
 		}
-		if (!userid || userid.length > 18) {
-			throw new Chat.ErrorMessage(`Specify a valid name to set a new color for. Names must be <19 characters.`);
+		if (!userid || userid.length > 25) {
+			throw new Chat.ErrorMessage(`Specify a valid name to set a new color for. Names must be <26 characters.`);
 		}
 		const [res, error] = await LoginServer.request('updatenamecolor', {
 			userid,

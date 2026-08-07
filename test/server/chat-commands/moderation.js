@@ -22,9 +22,9 @@ describe('room promotions', function () {
 		this.targetUser = makeUser('Heart of Etheria', '127.0.0.1');
 	});
 
-	it('should not promote users with usernames >18 characters long', () => {
-		assert.throws(() => moderation.runPromote(this.user, this.room, 'a'.repeat(19), '+', undefined, true));
-		assert.doesNotThrow(() => moderation.runPromote(this.user, this.room, 'a'.repeat(18), '+', undefined, true));
+	it('should not promote users with usernames >25 characters long', () => {
+		assert.throws(() => moderation.runPromote(this.user, this.room, 'a'.repeat(26), '+', undefined, true));
+		assert.doesNotThrow(() => moderation.runPromote(this.user, this.room, 'a'.repeat(25), '+', undefined, true));
 	});
 
 	it('should not promote offline users without the `force` option', () => {

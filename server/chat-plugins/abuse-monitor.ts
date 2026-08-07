@@ -1897,7 +1897,7 @@ export const pages: Chat.PageTable = {
 			this.checkCan('lock');
 			let buf = `<div class="pad"><h2>Artemis user logs</h2><hr />`;
 			const userid = toID(query.shift());
-			if (!userid || userid.length > 18) {
+			if (!userid || userid.length > 25) {
 				buf += `<p class="message-error">Invalid username.</p>`;
 				return buf;
 			}

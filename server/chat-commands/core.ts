@@ -20,7 +20,7 @@ import type { GlobalPermission, RoomPermission } from '../user-groups';
 
 export const crqHandlers: { [k: string]: Chat.CRQHandler } = {
 	userdetails(target, user, trustable) {
-		if (target.length > 18) {
+		if (target.length > 25) {
 			return null;
 		}
 
@@ -417,8 +417,8 @@ export const commands: Chat.ChatCommands = {
 			this.sendReply(`That user is online, so a normal PM is being sent.`);
 			return this.parse(`/pm ${userid}, ${message}`);
 		}
-		if (userid.length > 18) {
-			throw new Chat.ErrorMessage(`Invalid userid. Must be <=18 characters in length.`);
+		if (userid.length > 25) {
+			throw new Chat.ErrorMessage(`Invalid userid. Must be <=25 characters in length.`);
 		}
 		if (Chat.parseCommand(message)) {
 			this.room = null;

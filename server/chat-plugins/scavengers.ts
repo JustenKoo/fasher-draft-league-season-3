@@ -1945,7 +1945,7 @@ const ScavengerCommands: Chat.ChatCommands = {
 		const targetId = toID(parts[0]);
 		const points = parseInt(parts[1]);
 
-		if (!targetId || targetId === 'constructor' || targetId.length > 18) throw new Chat.ErrorMessage("Invalid username.");
+		if (!targetId || targetId === 'constructor' || targetId.length > 25) throw new Chat.ErrorMessage("Invalid username.");
 		if (!points || points < 0 || points > 1000) {
 			throw new Chat.ErrorMessage("Points must be an integer between 1 and 1000.");
 		}
@@ -1964,7 +1964,7 @@ const ScavengerCommands: Chat.ChatCommands = {
 		const targetId = toID(parts[0]);
 		const points = parseInt(parts[1]);
 
-		if (!targetId || targetId === 'constructor' || targetId.length > 18) throw new Chat.ErrorMessage("Invalid username.");
+		if (!targetId || targetId === 'constructor' || targetId.length > 25) throw new Chat.ErrorMessage("Invalid username.");
 		if (!points || points < 0 || points > 1000) {
 			throw new Chat.ErrorMessage("Points must be an integer between 1 and 1000.");
 		}

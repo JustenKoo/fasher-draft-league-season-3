@@ -731,8 +731,8 @@ export const pages: Chat.PageTable = {
 			}
 			const [rawOwner, rawFormat, rawPokemon, rawMoves, rawAbilities, rawGen] = query;
 			const owner = toID(rawOwner);
-			if (owner.length > 18) {
-				throw new Chat.ErrorMessage(`Invalid owner name. Names must be under 18 characters long.`);
+			if (owner.length > 25) {
+				throw new Chat.ErrorMessage(`Invalid owner name. Names must be under 25 characters long.`);
 			}
 			const format = toID(rawFormat);
 			if (format && !Dex.formats.get(format).exists) {

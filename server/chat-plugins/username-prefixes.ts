@@ -102,7 +102,7 @@ export const commands: Chat.ChatCommands = {
 
 			const [prefix, type] = target.split(',').map(toID);
 			if (!prefix || !type) return this.parse(`/help usernameprefix`);
-			if (prefix.length > 18) {
+			if (prefix.length > 25) {
 				throw new Chat.ErrorMessage(`Specified prefix '${prefix}' is longer than the maximum user ID length.`);
 			}
 

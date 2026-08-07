@@ -751,8 +751,8 @@ export class User extends Chat.MessageContext {
 			return false;
 		}
 
-		if (userid.length > 18) {
-			this.send(`|nametaken||Your name must be 18 characters or shorter.`);
+		if (userid.length > 25) {
+			this.send(`|nametaken||Your name must be 25 characters or shorter.`);
 			return false;
 		}
 		name = Chat.namefilter(name, this);

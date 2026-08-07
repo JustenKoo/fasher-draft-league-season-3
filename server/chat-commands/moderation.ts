@@ -44,7 +44,7 @@ export function runPromote(
 	username = username || userid;
 	if (!username) return;
 
-	if (userid.length > 18) {
+	if (userid.length > 25) {
 		throw new Chat.ErrorMessage(`User '${username}' does not exist (the username is too long).`);
 	}
 	if (!targetUser && !Users.isUsernameKnown(userid) && !force) {
@@ -1325,7 +1325,7 @@ export const commands: Chat.ChatCommands = {
 		const [targetUsername, rest] = Utils.splitFirst(target, ',').map(k => k.trim());
 		const targetUser = Users.get(targetUsername);
 		const targetUserid = toID(targetUsername);
-		if (!targetUserid || targetUserid.length > 18) {
+		if (!targetUserid || targetUserid.length > 25) {
 			throw new Chat.ErrorMessage(`Invalid userid.`);
 		}
 		const force = this.cmd.includes('force');
