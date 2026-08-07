@@ -167,6 +167,60 @@ via `git pull`. If you ever re-clone the repo fresh on a new machine, you
 must manually re-set `exports.noguestsecurity = true;` in it and restart, or
 logins will fail with `Your authentication token was invalid.`
 
+## Admin access
+
+Stock Pokémon Showdown has no auto-admin mechanism at all (no first-user
+bonus, nothing tied to `noguestsecurity`) — global rank lives in
+`config/usergroups.csv`, a gitignored, per-deployment file, empty until you
+create it. `/promote`-family commands need an existing admin to run them, so
+there's no way to self-promote once the server's running with an empty file.
+
+**Grant Administrator:**
+```
+echo "USERNAME,~" > ~/pokemon-showdown-master/config/usergroups.csv
+sudo systemctl restart pokemon-showdown
+```
+No space after the comma. If `usergroups.csv` already has other rows (other
+admins/mods promoted since), append a line instead of overwriting the file.
+Once you have one admin, promote everyone else the normal way with
+`/globaladmin`, `/globalmod`, `/globaldriver`, etc.
+
+Stock PS additionally expects that username to be "registered," since an
+unregistered name could otherwise be reclaimed by someone else, who'd inherit
+the rank. This deployment has no real registration (`noguestsecurity`) — the
+equivalent protection here is the local `/pwlogin` system (see
+`server/fasher-accounts.ts`). Make sure the username you're granting admin to
+is password-protected via `/pwlogin` before or right after promoting it.
+
+## Resetting data
+
+Not something to do casually — for reference only.
+
+**Ladder standings** (Elo/W-L-T records): stored as plain TSV, one file per
+format, at `config/ladders/{formatid}.tsv` (e.g.
+`config/ladders/gen9championsfasherdraftleagueseason3.tsv`). No built-in
+reset command exists — `/disableladder` only pauses rating updates, it
+doesn't clear anything. To reset:
+```
+sudo systemctl stop pokemon-showdown
+rm ~/pokemon-showdown-master/config/ladders/gen9championsfasherdraftleagueseason3.tsv
+# or: rm ~/pokemon-showdown-master/config/ladders/*.tsv   (resets every format)
+sudo systemctl start pokemon-showdown
+```
+
+**Stored usernames/passwords** (the local `/pwlogin` system): a single JSON
+file, `config/fasher-accounts.json` (scrypt-hashed, per `server/fasher-accounts.ts`).
+Deleting it wipes every claimed name's password protection — anyone can then
+claim any of those names fresh via `/pwlogin NAME,newpassword`, same as a
+name nobody's ever protected.
+```
+sudo systemctl stop pokemon-showdown
+rm ~/pokemon-showdown-master/config/fasher-accounts.json
+sudo systemctl start pokemon-showdown
+```
+This is separate from admin/mod rank (`config/usergroups.csv`, see above) —
+clearing one doesn't touch the other.
+
 ## Troubleshooting
 
 **"Someone is already using the name" / auth token invalid for every name:**
