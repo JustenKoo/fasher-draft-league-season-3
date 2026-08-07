@@ -8,6 +8,18 @@
 import { Utils } from '../../lib/utils';
 import { MAX_REQUESTS, sendPM } from '../friends';
 
+/**
+ * Fasher Draft League: whether Chat.Friends is backed by real SQLite
+ * (server/friends.ts) or the flat-file fallback (server/fasher-friends.ts)
+ * - see server/chat.ts. The two backends warrant different access checks:
+ * SQLite mode keeps stock PS's autoconfirmed/rank requirements, since it's
+ * meant for a real Smogon-account deployment; the flat-file mode has no
+ * such accounts to check, so it's just gated on having a name at all.
+ */
+function usingSqliteBackend() {
+	return !!(Config.usesqlite && Config.usesqlitefriends);
+}
+
 const STATUS_COLORS: { [k: string]: string } = {
 	idle: '#ff7000',
 	online: '#009900',
@@ -160,19 +172,20 @@ export const Friends = new class {
 	}
 	checkCanUse(context: Chat.CommandContext | Chat.PageContext) {
 		const user = context.user;
-		if (!user.autoconfirmed) {
-			throw new Chat.ErrorMessage(
-				context.tr`To use the friends feature you must be autoconfirmed, which means being registered for at least one week and winning one rated game.`
-			);
-		}
 		if (user.locked || user.namelocked || user.semilocked || user.permalocked) {
 			throw new Chat.ErrorMessage(`You are locked, and so cannot use the friends feature.`);
 		}
-		if (!Config.usesqlitefriends || !Config.usesqlite) {
-			throw new Chat.ErrorMessage(`The friends list feature is currently disabled.`);
-		}
-		if (!Users.globalAuth.atLeast(user, Config.usesqlitefriends)) {
-			throw new Chat.ErrorMessage(`You are currently unable to use the friends feature.`);
+		if (usingSqliteBackend()) {
+			if (!user.autoconfirmed) {
+				throw new Chat.ErrorMessage(
+					context.tr`To use the friends feature you must be autoconfirmed, which means being registered for at least one week and winning one rated game.`
+				);
+			}
+			if (!Users.globalAuth.atLeast(user, Config.usesqlitefriends)) {
+				throw new Chat.ErrorMessage(`You are currently unable to use the friends feature.`);
+			}
+		} else if (!user.named) {
+			throw new Chat.ErrorMessage(`You must choose a name before using the friends feature.`);
 		}
 	}
 	request(user: User, receiver: ID) {
@@ -700,7 +713,9 @@ export const handlers: Chat.Handlers = {
 };
 
 export const loginfilter: Chat.LoginFilter = user => {
-	if (!Config.usesqlitefriends || !Users.globalAuth.atLeast(user, Config.usesqlitefriends)) {
+	if (usingSqliteBackend()) {
+		if (!Users.globalAuth.atLeast(user, Config.usesqlitefriends)) return;
+	} else if (!user.named) {
 		return;
 	}
 

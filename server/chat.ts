@@ -28,6 +28,7 @@ import type { Punishment } from './punishments';
 import type { PartialModlogEntry } from './modlog';
 import type * as ConfigLoader from './config-loader';
 import * as Friends from './friends';
+import { FasherFriendsDatabase } from './fasher-friends';
 import { FS, Utils } from '../lib';
 import * as Artemis from './artemis';
 import { PrivateMessages } from './private-messages';
@@ -1557,7 +1558,10 @@ export const Chat = new class {
 	 * which tends to cause unexpected behavior.
 	 */
 	readonly MAX_TIMEOUT_DURATION = 2147483647;
-	readonly Friends = new Friends.FriendsDatabase();
+	// Fasher Draft League: fall back to a flat-file friends list when real
+	// SQLite friends storage isn't configured (see server/fasher-friends.ts).
+	readonly Friends: Friends.FriendsDatabase | FasherFriendsDatabase = (Config.usesqlite && Config.usesqlitefriends) ?
+		new Friends.FriendsDatabase() : new FasherFriendsDatabase();
 	readonly FriendsPM = Friends.PM;
 	readonly PrivateMessages = PrivateMessages;
 
