@@ -67,9 +67,21 @@ cd ~/pokemon-showdown-client
 git pull
 node build
 cp -r play.pokemonshowdown.com/* ~/pokemon-showdown-master/server/static/
+cp ~/pokemon-showdown-master/server/static/testclient-new.html ~/pokemon-showdown-master/server/static/index.html
 ```
 No restart needed for a client-only change — it's a static file swap, so just
 hard-refresh the browser tab.
+
+**Never skip that last `cp ... index.html` line.** `index.html` is what's
+actually served at the domain root (the single-tunnel setup's entry point)
+— but there's no `index.html` in the client repo's own source, so the
+`cp -r` step above never touches it. It only exists as a one-time manual
+copy of `testclient-new.html` made back when this was first set up, and
+silently goes stale on every deploy that changes `testclient-new.html`
+unless it's explicitly re-synced like this. (Hit this exact bug once
+already — the compiled JS was correct and deployed, but the actually-served
+HTML was still referencing an old script list, so a brand new feature's
+data never loaded at all, with no error until the button was clicked.)
 
 **If the change touches any generated `data/*.js` file** (teambuilder tier
 data, `fasher-draft-points.js`, etc.) — a plain `node build` is **not**
@@ -80,6 +92,7 @@ cd ~/pokemon-showdown-client
 git pull
 node build indexes
 cp -r play.pokemonshowdown.com/* ~/pokemon-showdown-master/server/static/
+cp ~/pokemon-showdown-master/server/static/testclient-new.html ~/pokemon-showdown-master/server/static/index.html
 ```
 **Important:** this must be `node build indexes` (through the wrapper
 script), **not** `node build-tools/build-indexes` run directly — that
