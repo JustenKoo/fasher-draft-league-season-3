@@ -876,7 +876,10 @@ export class RoomBattle extends RoomGame<RoomBattlePlayer> {
 	async updateLadder(p1score: number, winnerid: ID) {
 		this.room.rated = 0;
 		const winner = Users.get(winnerid);
-		if (winner && !winner.registered) {
+		// Fasher Draft League: real registration is impossible on this
+		// deployment (no login server - see Config.noguestsecurity), so this
+		// nag would otherwise fire after every single ladder win.
+		if (winner && !winner.registered && !Config.noguestsecurity) {
 			this.room.sendUser(winner, '|askreg|' + winner.id);
 		}
 		const p1 = this.p1.name;

@@ -194,32 +194,32 @@ is password-protected via `/pwlogin` before or right after promoting it.
 
 ## Resetting data
 
-Not something to do casually — for reference only.
+Not something to do casually. `tools/fasher-admin.js` covers the common
+cases — run from the repo root:
+```
+node tools/fasher-admin.js reset-ladders                # wipe every format's ladder
+node tools/fasher-admin.js reset-ladder <formatid>       # wipe just one format
+node tools/fasher-admin.js list-ladders                  # list every ladder + current rankings
+node tools/fasher-admin.js clear-accounts                # wipe all /pwlogin passwords
+node tools/fasher-admin.js clear-account <username>      # wipe one /pwlogin password
+node tools/fasher-admin.js list-accounts                 # list all password-protected usernames
+```
+**Stop the server first** (`sudo systemctl stop pokemon-showdown`) before any
+reset/clear command — both the ladder and account stores are cached in
+memory once the running server loads them, so file changes made while it's
+running won't be picked up until it restarts. `list-ladders`/`list-accounts`
+are read-only and safe to run anytime.
 
-**Ladder standings** (Elo/W-L-T records): stored as plain TSV, one file per
-format, at `config/ladders/{formatid}.tsv` (e.g.
-`config/ladders/gen9championsfasherdraftleagueseason3.tsv`). No built-in
-reset command exists — `/disableladder` only pauses rating updates, it
-doesn't clear anything. To reset:
-```
-sudo systemctl stop pokemon-showdown
-rm ~/pokemon-showdown-master/config/ladders/gen9championsfasherdraftleagueseason3.tsv
-# or: rm ~/pokemon-showdown-master/config/ladders/*.tsv   (resets every format)
-sudo systemctl start pokemon-showdown
-```
-
-**Stored usernames/passwords** (the local `/pwlogin` system): a single JSON
-file, `config/fasher-accounts.json` (scrypt-hashed, per `server/fasher-accounts.ts`).
-Deleting it wipes every claimed name's password protection — anyone can then
-claim any of those names fresh via `/pwlogin NAME,newpassword`, same as a
-name nobody's ever protected.
-```
-sudo systemctl stop pokemon-showdown
-rm ~/pokemon-showdown-master/config/fasher-accounts.json
-sudo systemctl start pokemon-showdown
-```
-This is separate from admin/mod rank (`config/usergroups.csv`, see above) —
-clearing one doesn't touch the other.
+Under the hood: ladder standings are plain TSV, one file per format, at
+`config/ladders/{formatid}.tsv` (e.g.
+`config/ladders/gen9championsfasherdraftleagueseason3.tsv`) — there's no
+built-in reset command in stock PS (`/disableladder` only pauses rating
+updates, it doesn't clear anything). Stored usernames/passwords (the local
+`/pwlogin` system) live in a single JSON file, `config/fasher-accounts.json`
+(scrypt-hashed, per `server/fasher-accounts.ts`) — clearing an entry there
+makes that name freely claimable again via `/pwlogin NAME,newpassword`, same
+as a name nobody's ever protected. This is separate from admin/mod rank
+(`config/usergroups.csv`, see above) — clearing one doesn't touch the other.
 
 ## Troubleshooting
 
