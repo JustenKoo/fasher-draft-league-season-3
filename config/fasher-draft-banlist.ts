@@ -91,6 +91,9 @@ export const FasherDraftBanlist: string[] = [
 	'Shedinja',
 
 	// New Megas - Unreleased
+	'Absol-Mega-Z',
+	'Baxcalibur-Mega',
+	'Darkrai-Mega',
 	'Garchomp-Mega-Z',
 	'Golisopod-Mega',
 	'Heatran-Mega',
