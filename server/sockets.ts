@@ -368,6 +368,14 @@ export class ServerStream extends Streams.ObjectReadWriteStream<string> {
 						} else if (req.url.startsWith('/avatars/')) {
 							req.url = req.url.slice(8);
 							server = avatarServer;
+						} else if (req.url.startsWith('/replays/') && replayJsonRegex.test(req.url.slice(8))) {
+							// Fasher Draft League: some tools (e.g. a replay stat
+							// parser) build this by appending .json directly to
+							// the /replays/{id} link a player shares, rather than
+							// the bare /{id}.json this server's own viewer uses -
+							// support both.
+							req.url = req.url.slice(8);
+							server = replayDataServer;
 						} else if (req.url.startsWith('/replays/')) {
 							req.url = req.url.slice(8);
 							server = replayAppServer;
