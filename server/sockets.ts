@@ -338,8 +338,20 @@ export class ServerStream extends Streams.ObjectReadWriteStream<string> {
 		// Static server
 		try {
 			const roomidRegex = /^\/(?:[A-Za-z0-9][A-Za-z0-9-]*)\/?$/;
+			// Fasher Draft League: a replay id looks like `{formatid}-{numbers}`,
+			// optionally with a `-{password}pw` suffix - see Room#getReplayData.
+			const replayIdRegex = /^\/[a-z0-9]+-[0-9]+(?:-[a-z0-9]+pw)?\/?(?:\?.*)?$/;
+			const replayJsonRegex = /^\/[a-z0-9]+-[0-9]+(?:-[a-z0-9]+pw)?\.json(?:\?.*)?$/;
 			const cssServer = new StaticServer('./config');
 			const avatarServer = new StaticServer('./config/avatars');
+			// Fasher Draft League: local replay storage (see fasher-replays.ts) -
+			// deliberately not under server/static so it can never collide with
+			// or be clobbered by a client deploy's `cp -r .../server/static/`.
+			const replayDataServer = new StaticServer('./config/replays');
+			// Fasher Draft League: the replay-viewing webapp (deployed from the
+			// client repo's replay.pokemonshowdown.com/), reusing this server's
+			// shared client assets (battle.js et al) rather than duplicating them.
+			const replayAppServer = new StaticServer('./server/static-replays');
 			const staticServer = new StaticServer('./server/static');
 			const staticRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
 				// console.log(`static rq: ${req.socket.remoteAddress}:${req.socket.remotePort} -> ${req.socket.localAddress}:${req.socket.localPort} - ${req.method} ${req.url} ${req.httpVersion} - ${req.rawHeaders.join('|')}`);
@@ -356,6 +368,14 @@ export class ServerStream extends Streams.ObjectReadWriteStream<string> {
 						} else if (req.url.startsWith('/avatars/')) {
 							req.url = req.url.slice(8);
 							server = avatarServer;
+						} else if (req.url.startsWith('/replays/')) {
+							req.url = req.url.slice(8);
+							server = replayAppServer;
+							if (replayIdRegex.test(req.url) || req.url === '/') {
+								req.url = '/testclient.html';
+							}
+						} else if (replayJsonRegex.test(req.url)) {
+							server = replayDataServer;
 						} else if (roomidRegex.test(req.url)) {
 							req.url = '/';
 						}

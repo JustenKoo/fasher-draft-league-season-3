@@ -111,6 +111,40 @@ strict superset.
 `fasher-draft-item-banlist.ts`, `fasher-draft-move-banlist.ts`): edit on your
 dev machine, commit, push, then `git pull` + restart on the Pi as above.
 
+**Replay viewer changes** (only needed if `replay.pokemonshowdown.com/` in
+the client repo changes - rare): it's deployed to its own directory,
+separate from the main client, and doesn't need a build step of its own
+(only `testclient.html` and the already-compiled `js/` folder are used):
+```
+cd ~/pokemon-showdown-client
+git pull
+mkdir -p ~/pokemon-showdown-master/server/static-replays
+cp replay.pokemonshowdown.com/testclient.html ~/pokemon-showdown-master/server/static-replays/
+cp replay.pokemonshowdown.com/download.html ~/pokemon-showdown-master/server/static-replays/
+cp -r replay.pokemonshowdown.com/js ~/pokemon-showdown-master/server/static-replays/
+```
+This only needs to be done once for a fresh Pi setup, then again any time
+`replay.pokemonshowdown.com/testclient.html` or its `js/` folder actually
+changes - it's not part of the regular client deploy steps above.
+
+**Replay upload/sharing** requires one manual one-time config value, same
+category as `noguestsecurity` below: `config/config.js`'s `exports.routes`
+has a `replays` field hardcoded to Smogon's real domain
+(`replay.pokemonshowdown.com`) by default. Change it to this server's own
+domain (whatever the ngrok tunnel/your domain actually is), or every
+"Upload and share replay" link will point at Smogon's site instead of this
+one:
+```js
+exports.routes = {
+	root: 'pokemonshowdown.com',
+	client: 'play.pokemonshowdown.com',
+	dex: 'dex.pokemonshowdown.com',
+	replays: 'your-actual-domain-here.com',   // <- change this one
+};
+```
+Uploaded replay data itself (`config/replays/*.json`) needs no setup - the
+directory is created automatically the first time anyone saves a replay.
+
 ## Syncing tier data from official Smogon (recurring, do periodically)
 
 Our format's tiers (`data/formats-data.ts`, `data/mods/champions/formats-data.ts`)

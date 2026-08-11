@@ -44,6 +44,7 @@ import { Roomlogs, type Roomlog } from './roomlogs';
 import { RoomAuth } from './user-groups';
 import { type PartialModlogEntry, mainModlog } from './modlog';
 import { Replays } from './replays';
+import { FasherReplays } from './fasher-replays';
 import * as crypto from 'crypto';
 import type { SubProcessesConfig } from './config-loader';
 
@@ -2108,25 +2109,20 @@ export class GameRoom extends BasicRoom {
 			return;
 		}
 
-		// Otherwise, (we're probably a side server), upload the replay through LoginServer
-
-		const [result] = await LoginServer.request('addreplay', {
+		// Fasher Draft League: stock PS uploads through LoginServer here, but
+		// this fork isn't a registered Smogon server so that always fails -
+		// save locally instead. See fasher-replays.ts.
+		const fullid = FasherReplays.add({
 			id,
 			log,
-			players: battle.players.map(p => p.name).join(','),
+			players: battle.players.map(p => p.name),
 			format: format.name,
-			rating, // will probably do nothing
-			hidden: hidden === 0 ? '' : hidden,
-			inputlog: battle.inputLog?.join('\n') || undefined,
+			rating: Math.round(rating || 0) || 0,
+			private: hidden,
 			password,
+			uploadtime: Math.trunc(Date.now() / 1000),
 		});
-		if (result?.errorip) {
-			connection?.popup(`This server's request IP ${result.errorip} is not a registered server.`);
-			return;
-		}
-
-		const fullid = result?.replayid;
-		const url = `https://${Config.routes.replays}/${fullid}`;
+		const url = `https://${Config.routes.replays}/replays/${fullid}`;
 		connection?.popup(
 			`|html|<p>Your replay has been uploaded! It's available at:</p><p> ` +
 			`<a class="no-panel-intercept" href="${url}" target="_blank">${url}</a> ` +

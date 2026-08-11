@@ -19,6 +19,9 @@
 # server/static holds the built, patched client copied in at deploy time
 # (single-tunnel architecture) - build output, not source, same as dist/.
 /server/static/*
+# same as server/static/* above, but for the replay viewer app - see
+# "Replay viewer changes" in FASHER-PI-OPERATIONS.md.
+/server/static-replays/*
 /logs/**/*
 /test/modlogs
 /test/replays/*.html
