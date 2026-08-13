@@ -731,8 +731,19 @@ export class User extends Chat.MessageContext {
 	 *   from client input) - skips validateToken entirely. Used by
 	 *   /pwlogin (server/chat-plugins/fasher-pwlogin.ts) after it's
 	 *   already checked the password against config/fasher-accounts.json.
+	 *   Passing 'registered' additionally treats the login as userType
+	 *   '2' (registered) rather than '1' (unregistered guest), which
+	 *   matters for two things below: whether this session is allowed to
+	 *   take over/kick a stale session already using the name (see the
+	 *   conflictUser merge logic), and whether updateGroup() re-reads this
+	 *   name's real rank from config/usergroups.csv instead of resetting
+	 *   it to unranked. A password login is a real authentication, so it
+	 *   should get both, unlike a plain unverified name claim.
 	 */
-	async rename(name: string, token: string, newlyRegistered: boolean, connection: Connection, preVerified = false) {
+	async rename(
+		name: string, token: string, newlyRegistered: boolean, connection: Connection,
+		preVerified: boolean | 'registered' = false
+	) {
 		let userid = toID(name);
 		if (userid !== this.id) {
 			for (const roomid of this.games) {
@@ -780,7 +791,7 @@ export class User extends Chat.MessageContext {
 			}
 		}
 
-		const userType = preVerified ? '1' : await this.validateToken(token, name, userid, connection);
+		const userType = preVerified ? (preVerified === 'registered' ? '2' : '1') : await this.validateToken(token, name, userid, connection);
 		if (userType === null) return;
 		if (userType === '1') newlyRegistered = false;
 

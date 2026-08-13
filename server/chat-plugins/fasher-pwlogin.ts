@@ -37,7 +37,14 @@ export const commands: Chat.ChatCommands = {
 			);
 		}
 
-		return user.rename(name, '', false, connection, true);
+		// 'registered' (not plain true) - see the preVerified doc on
+		// rename() in users.ts. Without it, this login would be treated as
+		// an unverified guest name claim: it'd lose whatever rank the name
+		// actually has, and - the bug this was added to fix - it wouldn't
+		// be allowed to take over a stale session already using the name
+		// (e.g. a PC that was turned off, not cleanly disconnected) unless
+		// it happened to come from the same IP.
+		return user.rename(name, '', true, connection, 'registered');
 	},
 	pwloginhelp: [
 		`/pwlogin username,password - Logs in as username. Claims username with that password if it isn't already protected, otherwise verifies it.`,
