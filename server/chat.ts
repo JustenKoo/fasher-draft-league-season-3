@@ -29,6 +29,7 @@ import type { PartialModlogEntry } from './modlog';
 import type * as ConfigLoader from './config-loader';
 import * as Friends from './friends';
 import { FasherFriendsDatabase } from './fasher-friends';
+import { FasherDraftPointValues } from '../config/fasher-draft-points';
 import { FS, Utils } from '../lib';
 import * as Artemis from './artemis';
 import { PrivateMessages } from './private-messages';
@@ -2490,6 +2491,14 @@ export const Chat = new class {
 		}
 		buf += `<span class="col statcol"><em>Spe</em><br />${species.baseStats.spe}</span> `;
 		buf += `<span class="col bstcol"><em>BST<br />${species.bst}</em></span> `;
+		// Fasher Draft League: species not in fasher-draft-points.ts have no
+		// cost enforced, cost 0 means "Suspect" (under review, not on the
+		// ban list, ignored for budget) - see battle-dex.ts's
+		// formatDraftPoints() in the client repo for the matching logic
+		// used in the teambuilder.
+		const draftCost = FasherDraftPointValues[species.name]?.cost;
+		const draftCostDisplay = draftCost === undefined ? '&mdash;' : draftCost === 0 ? 'Suspect' : String(draftCost);
+		buf += `<span class="col bstcol"><em>Pts<br />${draftCostDisplay}</em></span> `;
 		buf += '</span>';
 		buf += '</li>';
 		return `<div class="message"><ul class="utilichart">${buf}<li style="clear:both"></li></ul></div>`;
