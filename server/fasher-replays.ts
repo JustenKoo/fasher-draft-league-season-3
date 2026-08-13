@@ -48,7 +48,7 @@ class FasherReplayStore {
 	add(replay: Omit<FasherReplay, 'views'>) {
 		this.ensureDir();
 		const data: FasherReplay = { views: 0, ...replay };
-		void this.file(replay.id).write(JSON.stringify(data));
+		void this.file(replay.id).safeWrite(JSON.stringify(data));
 		return replay.id + (replay.password ? `-${replay.password}pw` : '');
 	}
 }

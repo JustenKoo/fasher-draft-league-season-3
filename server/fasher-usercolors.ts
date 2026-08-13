@@ -26,12 +26,16 @@ class FasherUserColorsStore {
 		this.loaded = true;
 		const file = FS(COLORS_FILE);
 		if (file.existsSync()) {
-			this.colors = JSON.parse(file.readSync());
+			try {
+				this.colors = JSON.parse(file.readSync());
+			} catch (e) {
+				Monitor.warn(`Corrupted ${COLORS_FILE}, starting fresh: ${e}`);
+			}
 		}
 	}
 
 	private save() {
-		void FS(COLORS_FILE).write(JSON.stringify(this.colors));
+		void FS(COLORS_FILE).safeWrite(JSON.stringify(this.colors));
 	}
 
 	get(userid: string) {

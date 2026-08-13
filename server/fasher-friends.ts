@@ -55,12 +55,16 @@ export class FasherFriendsDatabase {
 		this.loaded = true;
 		const file = FS(FRIENDS_FILE);
 		if (file.existsSync()) {
-			const saved = JSON.parse(file.readSync());
-			this.data = { pairs: [], requests: [], settings: {}, ...saved };
+			try {
+				const saved = JSON.parse(file.readSync());
+				this.data = { pairs: [], requests: [], settings: {}, ...saved };
+			} catch (e) {
+				Monitor.warn(`Corrupted ${FRIENDS_FILE}, starting fresh: ${e}`);
+			}
 		}
 	}
 	private save() {
-		void FS(FRIENDS_FILE).write(JSON.stringify(this.data));
+		void FS(FRIENDS_FILE).safeWrite(JSON.stringify(this.data));
 	}
 	private getSettingsRaw(userid: ID): FriendSettings {
 		return this.data.settings[userid] || { sendLoginData: false, lastLogin: 0, publicList: false };

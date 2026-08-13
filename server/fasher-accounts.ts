@@ -36,12 +36,16 @@ class FasherAccountsStore {
 		this.loaded = true;
 		const file = FS(ACCOUNTS_FILE);
 		if (file.existsSync()) {
-			this.accounts = JSON.parse(file.readSync());
+			try {
+				this.accounts = JSON.parse(file.readSync());
+			} catch (e) {
+				Monitor.warn(`Corrupted ${ACCOUNTS_FILE}, starting fresh: ${e}`);
+			}
 		}
 	}
 
 	private save() {
-		void FS(ACCOUNTS_FILE).write(JSON.stringify(this.accounts));
+		void FS(ACCOUNTS_FILE).safeWrite(JSON.stringify(this.accounts));
 	}
 
 	private hash(password: string, salt: string) {
