@@ -639,10 +639,21 @@ export const commands: Chat.ChatCommands = {
 					}
 				}
 				if (!tierDisplay) tierDisplay = 'tiers';
-				const displayedTier = tierDisplay === 'tiers' ? pokemon.tier :
+				let displayedTier = tierDisplay === 'tiers' ? pokemon.tier :
 					tierDisplay === 'doubles tiers' ? pokemon.doublesTier :
 					tierDisplay === 'National Dex tiers' ? pokemon.natDexTier :
 					pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
+				// Fasher Draft League: the champions mod's own tier data is
+				// only hand-curated for part of the dex - most species are
+				// still stuck at the "Illegal" placeholder they were
+				// generated with. The teambuilder already works around this
+				// (battle-dex-search.ts's getTier(), isNDChampions branch)
+				// by falling back to the real Gen 9 dex's National Dex tier
+				// whenever the champions-mod tier is "Illegal" - match that
+				// here so !data shows the same tier players see in-client.
+				if (displayedTier === 'Illegal' && dex.currentMod.startsWith('champions')) {
+					displayedTier = Dex.mod('gen9').species.get(pokemon.id).natDexTier;
+				}
 				buffer += `${prefix}${Chat.getDataPokemonHTML(pokemon, dex.gen, displayedTier)}\n`;
 				if (showDetails) {
 					let weighthit = 20;
