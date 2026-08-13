@@ -157,6 +157,18 @@ const MESSAGE_COOLDOWN = 5 * 60 * 1000;
 
 const MAX_PARSE_RECURSION = 10;
 
+// Fasher Draft League: fallback format for commands that resolve a format
+// context (splitFormat() below) when a room has no /roomdefaultformat set
+// and isn't a battle. Previously this fell through to plain, un-modded Gen
+// 9 - which is why custom champions-mod content (e.g. a custom mega) showed
+// up as "Illegal" in the lobby. A room's own /roomdefaultformat still takes
+// priority over this; this only matters as the last resort, so it isn't
+// lost if that per-room setting doesn't survive a restart (it's persisted
+// through a 5-second-throttled write - see Rooms.global.writeChatRoomData -
+// so a setting made shortly before a restart can be lost). Update this id
+// each season.
+const FASHER_DEFAULT_FORMAT = 'gen9championsfasherdraftleagueseason3';
+
 const VALID_COMMAND_TOKENS = '/!';
 const BROADCAST_TOKEN = '!';
 
@@ -317,7 +329,9 @@ export abstract class MessageContext {
 		}
 
 		const room = (this as any as CommandContext).room;
-		const { dex, format } = this.extractFormat(room?.settings.defaultFormat || room?.battle?.format, allowRules);
+		const { dex, format } = this.extractFormat(
+			room?.settings.defaultFormat || room?.battle?.format || FASHER_DEFAULT_FORMAT, allowRules
+		);
 		return { dex, format, targets };
 	}
 	extractFormat(formatOrMod?: string, allowRules?: boolean): { dex: ModdedDex, format: Format | null, isMatch: boolean } {
