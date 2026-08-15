@@ -350,6 +350,30 @@ export const commands: Chat.ChatCommands = {
 		`/whois [username] - Get details on a username: alts (Requires: % @ ~), group, IP address (Requires: @ ~), and rooms.`,
 	],
 
+	// Fasher Draft League: unlike a room's user list (visible in the
+	// client without any command), this shows who's connected across the
+	// whole server, not just whoever happens to currently be sitting in
+	// your room.
+	who: 'online',
+	online(target, room, user) {
+		if (!this.runBroadcast()) return;
+		const names: string[] = [];
+		for (const curUser of Users.users.values()) {
+			if (!curUser.named || !curUser.connected) continue;
+			names.push(curUser.name);
+		}
+		names.sort((a, b) => toID(a).localeCompare(toID(b)));
+
+		if (!names.length) return this.sendReplyBox(`No one is currently online.`);
+		this.sendReplyBox(
+			`<strong>${names.length} user${Chat.plural(names.length)} online:</strong><br />` +
+			names.map(name => Utils.escapeHTML(name)).join(', ')
+		);
+	},
+	onlinehelp: [
+		`/online - Shows every user currently connected to the server, not just whoever's in your current room.`,
+	],
+
 	'chp': 'offlinewhois',
 	checkpunishment: 'offlinewhois',
 	offlinewhois(target, room, user) {
