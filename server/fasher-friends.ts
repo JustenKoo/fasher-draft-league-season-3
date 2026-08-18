@@ -64,7 +64,15 @@ export class FasherFriendsDatabase {
 		}
 	}
 	private save() {
-		void FS(FRIENDS_FILE).safeWrite(JSON.stringify(this.data));
+		// writeUpdate (not safeWrite) because save() has many independent
+		// call sites that can fire close together (a friend request cascades
+		// into several state changes) - safeWrite's own write-then-rename
+		// isn't safe against two overlapping calls to itself, which is
+		// exactly what caused the "rename .NEW -> fasher-friends.json:
+		// ENOENT" crash: one call's rename already moved the .NEW file out
+		// from under the other's. writeUpdate queues/coalesces concurrent
+		// calls into a single in-flight write instead of racing.
+		FS(FRIENDS_FILE).writeUpdate(() => JSON.stringify(this.data));
 	}
 	private getSettingsRaw(userid: ID): FriendSettings {
 		return this.data.settings[userid] || { sendLoginData: false, lastLogin: 0, publicList: false };

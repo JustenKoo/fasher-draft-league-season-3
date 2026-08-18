@@ -48,7 +48,12 @@ class FasherReplayStore {
 	add(replay: Omit<FasherReplay, 'views'>) {
 		this.ensureDir();
 		const data: FasherReplay = { views: 0, ...replay };
-		void this.file(replay.id).safeWrite(JSON.stringify(data));
+		// writeUpdate, not safeWrite - see the comment on FasherFriendsDatabase's
+		// save() in fasher-friends.ts for why (two overlapping safeWrite calls
+		// to the same path can crash with ENOENT on the rename step). Each
+		// replay has its own file, so this only matters if the same id is
+		// saved twice in quick succession, but it's free to be consistent.
+		this.file(replay.id).writeUpdate(() => JSON.stringify(data));
 		return replay.id + (replay.password ? `-${replay.password}pw` : '');
 	}
 }

@@ -35,7 +35,10 @@ class FasherUserColorsStore {
 	}
 
 	private save() {
-		void FS(COLORS_FILE).safeWrite(JSON.stringify(this.colors));
+		// writeUpdate, not safeWrite - see the comment on FasherFriendsDatabase's
+		// save() in fasher-friends.ts for why (two overlapping safeWrite calls
+		// to the same path can crash with ENOENT on the rename step).
+		FS(COLORS_FILE).writeUpdate(() => JSON.stringify(this.colors));
 	}
 
 	get(userid: string) {

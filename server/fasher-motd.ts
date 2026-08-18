@@ -27,8 +27,18 @@ class FasherMotdStore {
 		this.loaded = true;
 		const file = FS(MOTD_FILE);
 		if (file.existsSync()) {
-			this.data = { message: null, setBy: null, setAt: 0, ...JSON.parse(file.readSync()) };
+			try {
+				this.data = { message: null, setBy: null, setAt: 0, ...JSON.parse(file.readSync()) };
+			} catch (e) {
+				Monitor.warn(`Corrupted ${MOTD_FILE}, starting fresh: ${e}`);
+			}
 		}
+	}
+	private save() {
+		// writeUpdate, not safeWrite - see the comment on FasherFriendsDatabase's
+		// save() in fasher-friends.ts for why (two overlapping safeWrite calls
+		// to the same path can crash with ENOENT on the rename step).
+		FS(MOTD_FILE).writeUpdate(() => JSON.stringify(this.data));
 	}
 	get() {
 		this.load();
@@ -37,12 +47,12 @@ class FasherMotdStore {
 	set(message: string, setBy: ID) {
 		this.load();
 		this.data = { message, setBy, setAt: Date.now() };
-		void FS(MOTD_FILE).safeWrite(JSON.stringify(this.data));
+		this.save();
 	}
 	clear() {
 		this.load();
 		this.data = { message: null, setBy: null, setAt: 0 };
-		void FS(MOTD_FILE).safeWrite(JSON.stringify(this.data));
+		this.save();
 	}
 }
 

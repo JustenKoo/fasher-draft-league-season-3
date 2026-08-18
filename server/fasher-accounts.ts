@@ -45,7 +45,10 @@ class FasherAccountsStore {
 	}
 
 	private save() {
-		void FS(ACCOUNTS_FILE).safeWrite(JSON.stringify(this.accounts));
+		// writeUpdate, not safeWrite - see the comment on FasherFriendsDatabase's
+		// save() in fasher-friends.ts for why (two overlapping safeWrite calls
+		// to the same path can crash with ENOENT on the rename step).
+		FS(ACCOUNTS_FILE).writeUpdate(() => JSON.stringify(this.accounts));
 	}
 
 	private hash(password: string, salt: string) {
