@@ -175,7 +175,7 @@ export const FasherDraftPointValues: { [species: string]: FasherPointEntry } = {
 	'Seaking': { cost: 1 },
 	'Staryu': { cost: 1 },
 	'Starmie': { cost: 9 },
-	'Starmie-Mega': { cost: 22 },
+	'Starmie-Mega': { cost: 0 },
 	'Mr. Mime': { cost: 1 },
 	'Mr. Mime-Galar': { cost: 1 },
 	'Scyther': { cost: 3 },

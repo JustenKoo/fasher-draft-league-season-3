@@ -4,15 +4,23 @@ Quick reference for running/maintaining the league server on the Raspberry Pi
 (`pi@lightpi2`). Repos live at `~/pokemon-showdown-master` (server) and
 `~/pokemon-showdown-client` (client, only needed when rebuilding the client).
 
-The game server and the ngrok tunnel both run as **systemd services** so they
-survive SSH disconnects, crashes, and Pi reboots on their own.
+The game server and the Cloudflare Tunnel both run as **systemd services** so
+they survive SSH disconnects, crashes, and Pi reboots on their own.
+
+(Migrated off ngrok's free tier to a real domain, `fasherdraftleague.com`,
+routed through Cloudflare Tunnel - ngrok's free shared domains
+(`*.ngrok-free.dev`/`.app`) were getting blocklisted by some ISP-level
+security products, e.g. Xfinity's xFi Advanced Security, as a "tunneling
+service" category, independent of anything about this site's actual content.
+A domain we own isn't part of that shared reputation pool. See "One-time:
+Cloudflare Tunnel setup" below if setting this up fresh on a new Pi.)
 
 ## Everyday commands
 
 **Check if everything's up:**
 ```
 sudo systemctl status pokemon-showdown
-sudo systemctl status ngrok
+sudo systemctl status cloudflared
 ```
 Look for `Active: active (running)` on both, with no `CRASH:` lines in the
 recent log output shown at the bottom.
@@ -24,25 +32,25 @@ sudo systemctl restart pokemon-showdown
 
 **Restart the tunnel** (rarely needed, e.g. if it drops):
 ```
-sudo systemctl restart ngrok
+sudo systemctl restart cloudflared
 ```
 
 **Stop everything** (for maintenance, moving the Pi, etc.):
 ```
 sudo systemctl stop pokemon-showdown
-sudo systemctl stop ngrok
+sudo systemctl stop cloudflared
 ```
 
 **Start everything back up:**
 ```
 sudo systemctl start pokemon-showdown
-sudo systemctl start ngrok
+sudo systemctl start cloudflared
 ```
 
 **Live logs** (Ctrl+C to exit):
 ```
 journalctl -u pokemon-showdown -f
-journalctl -u ngrok -f
+journalctl -u cloudflared -f
 ```
 
 **Server's own error log** (uncaught exceptions get written here regardless
@@ -131,15 +139,14 @@ changes - it's not part of the regular client deploy steps above.
 category as `noguestsecurity` below: `config/config.js`'s `exports.routes`
 has a `replays` field hardcoded to Smogon's real domain
 (`replay.pokemonshowdown.com`) by default. Change it to this server's own
-domain (whatever the ngrok tunnel/your domain actually is), or every
-"Upload and share replay" link will point at Smogon's site instead of this
-one:
+domain, or every "Upload and share replay" link will point at Smogon's site
+instead of this one:
 ```js
 exports.routes = {
 	root: 'pokemonshowdown.com',
 	client: 'play.pokemonshowdown.com',
 	dex: 'dex.pokemonshowdown.com',
-	replays: 'your-actual-domain-here.com',   // <- change this one
+	replays: 'fasherdraftleague.com',   // <- change this one
 };
 ```
 Uploaded replay data itself (`config/replays/*.json`) needs no setup - the
@@ -193,6 +200,63 @@ Then push/pull that `server/static/` copy to the Pi the same way as any
 other client deploy (see "Deploying changes" above) — or just re-run
 `build-indexes` and the copy directly on the Pi if the client repo is
 checked out there too.
+
+## One-time: Cloudflare Tunnel setup
+
+Only needed once per Pi (or if setting this up fresh on a replacement Pi).
+Assumes `fasherdraftleague.com` is already registered and using Cloudflare's
+nameservers (automatic if bought through Cloudflare's own registrar).
+
+1. Install `cloudflared` (arm64 build, for a 64-bit Pi OS - use the plain
+   `-arm` build instead if the Pi is running a 32-bit OS):
+   ```
+   curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64.deb -o cloudflared.deb
+   sudo dpkg -i cloudflared.deb
+   ```
+2. Log in (prints a URL - open it on any device, log into the Cloudflare
+   account that owns the domain, select `fasherdraftleague.com`):
+   ```
+   cloudflared tunnel login
+   ```
+3. Create a named tunnel and note the tunnel ID it prints:
+   ```
+   cloudflared tunnel create fasher
+   ```
+4. Create `~/.cloudflared/config.yml`:
+   ```yaml
+   tunnel: <TUNNEL_ID>
+   credentials-file: /home/pi/.cloudflared/<TUNNEL_ID>.json
+   ingress:
+     - hostname: fasherdraftleague.com
+       service: http://localhost:8000
+     - service: http_status:404
+   ```
+5. Point the domain's DNS at the tunnel (creates the CNAME automatically):
+   ```
+   cloudflared tunnel route dns fasher fasherdraftleague.com
+   ```
+6. Install and start it as a systemd service (creates
+   `/etc/systemd/system/cloudflared.service` for you). Needs an explicit
+   `--config` path with the full `/home/pi/...` path (not `~`) - under
+   `sudo`, `$HOME` is root's home (`/root`), not `pi`'s, so `cloudflared`
+   won't find a config created via `~/.cloudflared/config.yml` without one
+   being passed to it directly. `--config` is a global flag, so it goes
+   *before* `service`, not after:
+   ```
+   sudo cloudflared --config /home/pi/.cloudflared/config.yml service install
+   sudo systemctl enable --now cloudflared
+   ```
+7. Set `config/config.js`'s `exports.routes.replays` to
+   `'fasherdraftleague.com'` (see "Replay upload/sharing" above) and restart
+   the server: `sudo systemctl restart pokemon-showdown`.
+8. Confirm `https://fasherdraftleague.com` loads and a login actually
+   completes (the real test - a proxy/tunnel issue often only shows up at
+   the websocket handshake, not the initial page load) before removing the
+   old tunnel:
+   ```
+   sudo systemctl stop ngrok
+   sudo systemctl disable ngrok
+   ```
 
 ## One-time / rarely-touched config
 
@@ -281,17 +345,25 @@ cat ~/pokemon-showdown-master/logs/errors.txt
 With systemd's `Restart=always`, it should already have come back on its own
 — these are just for finding out *why* it went down in the first place.
 
-**ngrok warns about a deprecated flag:** the current service uses `--url=`
-(not the older `--domain=`), so this shouldn't recur — but if ngrok changes
-its CLI again, update `/etc/systemd/system/ngrok.service` and run
-`sudo systemctl daemon-reload && sudo systemctl restart ngrok`.
+**Site loads but login/battles hang, or `cloudflared` shows connection
+errors in its logs:** check `journalctl -u cloudflared -f` while reproducing
+- a bad `ingress` entry or wrong `service:` port in `~/.cloudflared/config.yml`
+usually shows up as a clear error there. Confirm the config file actually
+points at `http://localhost:8000` (matching this server's port) and that
+`sudo systemctl status pokemon-showdown` shows it's actually running.
+
+**DNS for `fasherdraftleague.com` isn't resolving to the tunnel:** re-run
+`cloudflared tunnel route dns fasher fasherdraftleague.com` - it's safe to
+run again, and will confirm or fix the CNAME record. Takes a few minutes to
+propagate after first being created.
 
 ## Where things are
 
-- Public URL: `https://dizziness-sampling-batch.ngrok-free.dev` (static ngrok
-  domain — this one doesn't change on restart)
+- Public URL: `https://fasherdraftleague.com`, via Cloudflare Tunnel (see
+  "One-time: Cloudflare Tunnel setup" above)
 - Server + patched client are both served on port 8000 (single-tunnel setup,
   `server/static/` holds the built client, copied in from
   `pokemon-showdown-client/play.pokemonshowdown.com/`)
 - Systemd unit files: `/etc/systemd/system/pokemon-showdown.service`,
-  `/etc/systemd/system/ngrok.service`
+  `/etc/systemd/system/cloudflared.service`
+- Tunnel config: `~/.cloudflared/config.yml`
