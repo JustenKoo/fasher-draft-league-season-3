@@ -5711,6 +5711,11 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 			'Tera Type Preview',
 		],
 		banlist: [
+			// CAP (Create-A-Pokemon) content isn't real Pokemon - excluded
+			// entirely, not just from the draft banlist below (which is only
+			// for real species). Also hidden from teambuilder search - see
+			// build-tools/build-indexes in the client repo.
+			'-CAP',
 			...FasherDraftBanlist,
 			...FasherDraftItemBanlist.map(item => `item: ${item}`),
 			...FasherDraftMoveBanlist.map(move => `move: ${move}`),
