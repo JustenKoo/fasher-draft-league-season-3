@@ -14,6 +14,7 @@
  */
 
 import { TeamValidator } from '../sim/team-validator';
+import type { ModdedDex } from '../sim/dex';
 import { Teams, type PokemonSet } from '../sim/teams';
 import { FasherDraftPointValues, FASHER_DRAFT_BUDGET } from '../config/fasher-draft-points';
 
@@ -25,9 +26,19 @@ const IGNORED_PROBLEM_SUBSTRINGS = [
 	'has no moves (it must have at least one to be usable)',
 ];
 
-/** Fasher Draft League: draft point cost of a set, including the Tera Captain multiplier - matches battle-team-editor.tsx's draftPointsForSet() in the client repo. */
-function draftPointsForSet(set: PokemonSet): number {
-	const cost = FasherDraftPointValues[set.species]?.cost;
+/**
+ * Fasher Draft League: draft point cost of a set, including the Tera Captain
+ * multiplier - matches battle-team-editor.tsx's draftPointsForSet() in the
+ * client repo. Must resolve set.species through the format's Dex (species
+ * aliases/shorthand - e.g. "Landorus-T" for "Landorus-Therian") the same way
+ * the client does via dex.species.get(), rather than a raw dictionary lookup
+ * on the unpacked string - otherwise a box built from shorthand or pasted
+ * (e.g. from Pokepaste) names prices those Pokemon as free/unpriced here
+ * while the client shows their real cost, and the two budgets disagree.
+ */
+function draftPointsForSet(set: PokemonSet, dex: ModdedDex): number {
+	const species = dex.species.get(set.species);
+	const cost = FasherDraftPointValues[species.name]?.cost;
 	if (cost === undefined) return 0;
 	if (!set.teraCaptain && !set.teraCaptainSecondary) return cost;
 	return cost === 1 ? 2 : Math.floor(cost * 1.5);
@@ -47,12 +58,18 @@ export function validateDraftBox(packedTeam: string, formatid: string): string {
 	const teamHas: AnyObject = {};
 	let spent = 0;
 	for (const set of team) {
+		// Price the set *before* validating it - validateSet() has real
+		// engine side effects that rewrite set.species for some Pokemon (e.g.
+		// a Battle Bond Greninja gets silently rewritten to the internal
+		// "Greninja-Bond" pseudo-forme for its own Ash-Greninja handling),
+		// which would otherwise make the post-validation species unpriced.
+		spent += draftPointsForSet(set, validator.dex);
+
 		const setProblems = validator.validateSet(set, teamHas) || [];
 		for (const problem of setProblems) {
 			if (IGNORED_PROBLEM_SUBSTRINGS.some(s => problem.includes(s))) continue;
 			problems.push(problem);
 		}
-		spent += draftPointsForSet(set);
 	}
 
 	if (spent > FASHER_DRAFT_BUDGET) {
