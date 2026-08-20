@@ -7,14 +7,6 @@ Quick reference for running/maintaining the league server on the Raspberry Pi
 The game server and the Cloudflare Tunnel both run as **systemd services** so
 they survive SSH disconnects, crashes, and Pi reboots on their own.
 
-(Migrated off ngrok's free tier to a real domain, `fasherdraftleague.com`,
-routed through Cloudflare Tunnel - ngrok's free shared domains
-(`*.ngrok-free.dev`/`.app`) were getting blocklisted by some ISP-level
-security products, e.g. Xfinity's xFi Advanced Security, as a "tunneling
-service" category, independent of anything about this site's actual content.
-A domain we own isn't part of that shared reputation pool. See "One-time:
-Cloudflare Tunnel setup" below if setting this up fresh on a new Pi.)
-
 ## Everyday commands
 
 **Check if everything's up:**
@@ -251,12 +243,7 @@ nameservers (automatic if bought through Cloudflare's own registrar).
    the server: `sudo systemctl restart pokemon-showdown`.
 8. Confirm `https://fasherdraftleague.com` loads and a login actually
    completes (the real test - a proxy/tunnel issue often only shows up at
-   the websocket handshake, not the initial page load) before removing the
-   old tunnel:
-   ```
-   sudo systemctl stop ngrok
-   sudo systemctl disable ngrok
-   ```
+   the websocket handshake, not the initial page load).
 
 ## One-time / rarely-touched config
 
