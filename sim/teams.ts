@@ -114,6 +114,10 @@ export interface PokemonSet {
 	 * Tera Type
 	 */
 	teraType?: string;
+	/** Fasher Draft League: marks this set as the team's Primary Tera Captain (1.5x draft point cost). */
+	teraCaptain?: boolean;
+	/** Fasher Draft League: marks this set as the team's Secondary Tera Captain (1.5x draft point cost). */
+	teraCaptainSecondary?: boolean;
 }
 
 export const Teams = new class Teams {
@@ -200,12 +204,20 @@ export const Teams = new class Teams {
 			}
 
 			if (set.pokeball || set.hpType || set.gigantamax ||
-				(set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.teraType) {
+				(set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.teraType ||
+				set.teraCaptain || set.teraCaptainSecondary) {
 				buf += `,${set.hpType || ''}`;
 				buf += `,${this.packName(set.pokeball || '')}`;
 				buf += `,${set.gigantamax ? 'G' : ''}`;
 				buf += `,${set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : ''}`;
 				buf += `,${set.teraType || ''}`;
+				// Fasher Draft League: appended past the format's normal 6
+				// comma-fields - see the matching comment in the client
+				// repo's battle-teams.ts. Needed here so server-side draft
+				// budget validation (server/fasher-draft-validate.ts) can
+				// see which Pokemon are Tera Captains.
+				buf += `,${set.teraCaptain ? 'C' : ''}`;
+				buf += `,${set.teraCaptainSecondary ? 'C2' : ''}`;
 			}
 		}
 
@@ -326,9 +338,9 @@ export const Teams = new class Teams {
 			j = buf.indexOf(']', i);
 			let misc;
 			if (j < 0) {
-				if (i < buf.length) misc = buf.substring(i).split(',', 6);
+				if (i < buf.length) misc = buf.substring(i).split(',', 8);
 			} else {
-				if (i !== j) misc = buf.substring(i, j).split(',', 6);
+				if (i !== j) misc = buf.substring(i, j).split(',', 8);
 			}
 			if (misc) {
 				set.happiness = (misc[0] ? Number(misc[0]) : 255);
@@ -337,6 +349,9 @@ export const Teams = new class Teams {
 				set.gigantamax = !!misc[3];
 				set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
 				set.teraType = misc[5];
+				// Fasher Draft League: see the matching comment in pack() above
+				set.teraCaptain = !!misc[6];
+				set.teraCaptainSecondary = !!misc[7];
 			}
 			if (j < 0) break;
 			i = j + 1;
