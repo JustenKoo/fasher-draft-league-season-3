@@ -39,6 +39,7 @@ export const FasherDraftBanlist: string[] = [
 	'Dialga-Origin',
 	'Dracovish',
 	'Eternatus',
+	'Eternatus-Eternamax',
 	'Flutter Mane',
 	'Genesect',
 	'Genesect-Burn',
