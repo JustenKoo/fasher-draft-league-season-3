@@ -1126,7 +1126,7 @@ export const FasherDraftPointValues: { [species: string]: FasherPointEntry } = {
 	'Zamazenta': { cost: 99 },
 	'Zamazenta-Crowned': { cost: 99 },
 	'Eternatus': { cost: 99 },
-	'Eternatus-Eternamax': { cost: 0 },
+	'Eternatus-Eternamax': { cost: 99 },
 	'Kubfu': { cost: 1 },
 	'Urshifu': { cost: 17 },
 	'Urshifu-Rapid-Strike': { cost: 14 },
