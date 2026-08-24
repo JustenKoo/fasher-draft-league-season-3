@@ -5705,6 +5705,7 @@ export const Formats: import('../sim/dex-formats').FormatList = [
 		challengeShow: true,
 		tournamentShow: true,
 		itemClauseDefault: true,
+		bestOfDefault: true,
 		ruleset: [
 			'Standard Draft', 'NatDex Mod', '!! Adjust Level = 100', 'Level Clause Mod', '!! EV Limit = 510', 'Terastal Clause Mod',
 			'Overflow Stat Mod', 'Timer Starting = 270', 'Timer Max Per Turn = 270', 'Timer Max First Turn = 180', 'Timer Grace = 60',

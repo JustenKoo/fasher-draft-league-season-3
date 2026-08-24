@@ -9,7 +9,7 @@ a Raspberry Pi instead of Smogon's real infrastructure.
 For day-to-day operational commands (deploying, restarting, resetting data,
 troubleshooting), see [FASHER-PI-OPERATIONS.md](./FASHER-PI-OPERATIONS.md) —
 this document is about *how the system works*, that one is about *how to run
-it*.
+it*. For not-yet-built ideas, see [FASHER-BACKLOG.md](./FASHER-BACKLOG.md).
 
 ## The two repos
 
