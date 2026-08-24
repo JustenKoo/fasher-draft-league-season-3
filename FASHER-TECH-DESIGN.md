@@ -100,6 +100,31 @@ teammate from typing someone else's name mid-draft, not a determined
 attacker. League members are expected not to reuse a password they use
 elsewhere.
 
+**Reconnecting after a dropped connection.** When a user's last connection
+drops (closed tab, lost WiFi, phone switching networks), PS doesn't destroy
+their `User` object immediately — it's kept alive, holding their name and
+battle state, specifically so they can reconnect (`server/users.ts`'s
+`markDisconnected()`/`onDisconnect()`). The part that actually lets a new
+connection re-claim that name and resume the battle is `handleRename()`'s
+merge logic. Stock PS only lets an *unregistered* name's stale session be
+reclaimed by a new connection from **the same IP address** — a reasonable
+guardrail on Smogon's real server, where a login server handles the common
+"real account" reconnect and this path is just a minor courtesy for rare
+guests. On this deployment, that assumption breaks completely: since there's
+no login server, *everyone* reconnects through this exact unregistered-merge
+path, and requiring the same IP means any WiFi hiccup, mobile network
+handoff, or ISP DHCP renewal permanently locks a player out of their own
+name — and their in-progress battle — until the stale session eventually
+times out. This actually happened during real league play. The IP check has
+been removed for this deployment; reclaiming an unregistered name now only
+requires that the old session isn't currently connected (`handleRename()` in
+`server/users.ts`, look for the Fasher-specific comment there for the full
+reasoning). A name that's genuinely still connected elsewhere is unaffected
+— this only changes what happens once a session has actually dropped.
+`/pwlogin` remains the way to protect a name against being claimed by a
+*different* person the instant a session drops, since password-protected
+reconnects don't depend on IP or connection state at all.
+
 ### Teambuilder / Draft Plan Mode
 
 The teambuilder is entirely client-side rendering

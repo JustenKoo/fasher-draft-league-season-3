@@ -823,10 +823,30 @@ export class User extends Chat.MessageContext {
 		if (conflictUser) {
 			// unregistered users can only merge in limited situations
 			let canMerge = registered && conflictUser.registered;
-			if (
-				!registered && !conflictUser.registered && conflictUser.latestIp === this.latestIp &&
-				!conflictUser.connected
-			) {
+			if (!registered && !conflictUser.registered && !conflictUser.connected) {
+				// Fasher Draft League: stock PS also requires
+				// conflictUser.latestIp === this.latestIp here. That's a
+				// reasonable guardrail on Smogon's real server, where a login
+				// server handles the common "real account" reconnect case and
+				// this unregistered path is just a minor courtesy for rare
+				// guests. This deployment has no login server
+				// (Config.noguestsecurity) - literally everyone reconnects
+				// through this exact path, so requiring the same IP turns
+				// any WiFi hiccup, mobile network handoff, or ISP DHCP
+				// renewal into a permanent lockout of your own name and
+				// battle, with no way back in until the stale session times
+				// out. Dropping the IP check doesn't weaken anything this
+				// deployment actually relies on for security: an
+				// unregistered name is already freely claimable by anyone
+				// the instant it's not connected at all (that's what
+				// noguestsecurity means), so this just closes that same gap
+				// a little earlier - the moment the old connection drops,
+				// not after it's eventually cleaned up. Anyone who wants a
+				// name protected against this - including during the brief
+				// window while a disconnect is being reconnected from a
+				// different network - should use /pwlogin (see
+				// fasher-accounts.ts/fasher-pwlogin.ts), which doesn't
+				// depend on IP or connection state at all.
 				canMerge = true;
 			}
 			if (!canMerge) {
