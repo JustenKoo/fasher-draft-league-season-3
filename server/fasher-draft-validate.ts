@@ -16,7 +16,10 @@
 import { TeamValidator } from '../sim/team-validator';
 import type { ModdedDex } from '../sim/dex';
 import { Teams, type PokemonSet } from '../sim/teams';
-import { FasherDraftPointValues, FASHER_DRAFT_BUDGET, FASHER_SECONDARY_CAPTAIN_MAX_COST } from '../config/fasher-draft-points';
+import {
+	FasherDraftPointValues, FASHER_DRAFT_BUDGET, FASHER_SECONDARY_CAPTAIN_MAX_COST,
+	FASHER_DRAFT_MIN_SIZE, FASHER_DRAFT_MAX_SIZE,
+} from '../config/fasher-draft-points';
 
 // These are real TeamValidator messages (see sim/team-validator.ts), but
 // they're "you haven't finished planning this Pokemon yet" nags aimed at a
@@ -63,6 +66,14 @@ export function validateDraftBox(packedTeam: string, formatid: string): string {
 
 	const problems: string[] = [];
 	const teamHas: AnyObject = {};
+
+	const boxSize = team.filter(set => set.species).length;
+	if (boxSize < FASHER_DRAFT_MIN_SIZE) {
+		problems.push(`Your Draft Plan has ${boxSize} Pokemon, but the minimum is ${FASHER_DRAFT_MIN_SIZE}.`);
+	} else if (boxSize > FASHER_DRAFT_MAX_SIZE) {
+		problems.push(`Your Draft Plan has ${boxSize} Pokemon, but the maximum is ${FASHER_DRAFT_MAX_SIZE}.`);
+	}
+
 	let spent = 0;
 	for (const set of team) {
 		// Price the set *before* validating it - validateSet() has real

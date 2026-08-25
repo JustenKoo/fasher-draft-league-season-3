@@ -1305,6 +1305,11 @@ export const FasherDraftPointValues: { [species: string]: FasherPointEntry } = {
 // Total points a player has to spend drafting a team.
 export const FASHER_DRAFT_BUDGET = 120;
 
+// A Draft Plan box must have at least this many Pokemon (and no more than
+// FASHER_DRAFT_MAX_SIZE) to be valid.
+export const FASHER_DRAFT_MIN_SIZE = 10;
+export const FASHER_DRAFT_MAX_SIZE = 12;
+
 // A team may have a Primary Tera Captain (any Pokemon, any cost) and a
 // Secondary Tera Captain, capped at this base cost (before the Tera tax is
 // applied). There is no combined points cap on the two captains - only the

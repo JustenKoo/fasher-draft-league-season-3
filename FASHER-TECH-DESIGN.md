@@ -130,8 +130,10 @@ reconnects don't depend on IP or connection state at all.
 The teambuilder is entirely client-side rendering
 (`battle-team-editor.tsx`) of a packed team string, which the server only
 ever sees as an opaque blob until validation. A **box** (a coach's whole
-draft pool — 10-12+ Pokémon, not a 6-Pokémon battle team) is the same data
-structure as a normal team, distinguished only by a `team.isBox` flag.
+draft pool — 10 to 12 Pokémon (enforced by `/draftvalidate`, see
+`FASHER_DRAFT_MIN_SIZE`/`FASHER_DRAFT_MAX_SIZE` in
+`config/fasher-draft-points.ts`), not a 6-Pokémon battle team) is the same
+data structure as a normal team, distinguished only by a `team.isBox` flag.
 
 Two custom mechanics exist only for boxes in Draft Plan Mode:
 
