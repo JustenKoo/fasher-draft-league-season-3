@@ -242,7 +242,21 @@ so they don't get rediscovered the hard way a second time.
   directory is a disposable build artifact, not a real project repo,
   committing inside it (`git -C caches/pokemon-showdown commit -am "sync"`)
   is the normal fix — it isn't covered by the "don't auto-commit" policy
-  that applies to the two real repos.
+  that applies to the two real repos. **Watch out for a second-order version
+  of this**: committing inside the cache repeatedly across sessions makes
+  its `main` branch accumulate its own history, which can genuinely diverge
+  from master's real commits (master gets real commits of its own between
+  cache syncs) and turn the next `git pull` into an actual merge conflict
+  instead of a clean fast-forward. If that happens, don't try to resolve the
+  conflict - the cache's own commits aren't real work worth preserving.
+  Reset it back to a clean mirror of master and re-copy whatever's currently
+  staged-but-uncommitted in master on top:
+  ```
+  git -C caches/pokemon-showdown merge --abort   # if mid-conflict
+  git -C caches/pokemon-showdown fetch origin
+  git -C caches/pokemon-showdown reset --hard origin/main
+  # then re-copy any config/*.ts files master has staged-but-not-committed
+  ```
 
 - **TypeScript's incremental build cache occasionally skips a changed
   file.** If a source edit doesn't seem to take effect after `node build`,
