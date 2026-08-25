@@ -1305,7 +1305,8 @@ export const FasherDraftPointValues: { [species: string]: FasherPointEntry } = {
 // Total points a player has to spend drafting a team.
 export const FASHER_DRAFT_BUDGET = 120;
 
-// Of the total budget above, the most a player may spend (post-Tera-tax) on
-// their Tera Captain(s) combined. A team may have a Primary Tera Captain
-// (any Pokemon) and a Secondary Tera Captain (6 pts or less, before tax).
-export const FASHER_CAPTAIN_BUDGET = 30;
+// A team may have a Primary Tera Captain (any Pokemon, any cost) and a
+// Secondary Tera Captain, capped at this base cost (before the Tera tax is
+// applied). There is no combined points cap on the two captains - only the
+// main budget above and this per-Pokemon cap on the secondary.
+export const FASHER_SECONDARY_CAPTAIN_MAX_COST = 7;

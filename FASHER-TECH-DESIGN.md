@@ -146,7 +146,15 @@ Two custom mechanics exist only for boxes in Draft Plan Mode:
   Pokémon rounds up to 2 instead of down to 1). This is carried in the
   packed-team wire format as two extra trailing fields
   (`sim/teams.ts`/`battle-teams.ts` `pack`/`unpack`) beyond what stock PS's
-  format defines.
+  format defines. The Primary has no cost cap - only the main budget limits
+  it. The Secondary is capped at `FASHER_SECONDARY_CAPTAIN_MAX_COST`
+  (`config/fasher-draft-points.ts`) base cost, before the tax - enforced both
+  client-side (the checkbox simply isn't offered for a too-expensive
+  Pokémon, `battle-team-editor.tsx`) and server-side
+  (`server/fasher-draft-validate.ts`, since a hand-edited/pasted box can
+  bypass a client-only gate). There is deliberately no combined points cap
+  across the two captains - that used to exist (`FASHER_CAPTAIN_BUDGET`) but
+  was removed by league decision.
 
 Validating a box needed a dedicated server command,
 `/draftvalidate` (`server/fasher-draft-validate.ts` +
