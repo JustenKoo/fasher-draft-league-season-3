@@ -51,6 +51,58 @@ of how it was started):
 cat ~/pokemon-showdown-master/logs/errors.txt
 ```
 
+## Testing changes locally, before deploying to the Pi
+
+Don't push and wait for the Pi to find out if a change works - test the
+whole stack (server + client) on your own dev machine first. The game
+server serves the compiled client as static files on the same port (8000)
+it accepts the WebSocket connection on, so a single local server, with no
+Pi involved at all, is the entire real stack.
+
+**Server-side changes** (`.ts` files in `pokemon-showdown-master`):
+```
+cd pokemon-showdown-master
+node build
+node pokemon-showdown start --skip-build --no-security
+```
+This starts a local server on `localhost:8000` using your own
+`config/config.js` (which already has `noguestsecurity` set, same as
+production). `--no-security` relaxes a couple of login-server-dependent
+checks that don't apply locally anyway.
+
+**Client-side changes** (`.tsx`/`.ts` files in `pokemon-showdown-client`):
+```
+cd pokemon-showdown-client
+node build
+cp -r play.pokemonshowdown.com/* ../pokemon-showdown-master/server/static/
+cp ../pokemon-showdown-master/server/static/testclient-new.html ../pokemon-showdown-master/server/static/index.html
+```
+The last line matters - `index.html` doesn't exist in the client repo's own
+source (it's a one-time manual copy of `testclient-new.html`, see the
+warning under "Deploying changes" below), so `cp -r` alone never touches it
+and you'll keep testing against a stale copy without any error telling you
+so.
+
+**If the change touches generated data** (draft points, ban lists,
+teambuilder tier data): use `node build indexes` instead of plain
+`node build` for the client step, same as a real deploy - see "Deploying
+changes" below for why plain `node build` silently isn't enough there.
+
+**Then open a browser to `http://localhost:8000/`** - that's the whole
+stack, client and server, running locally. No restart needed after a
+client-only change, just a hard refresh; the server does need a restart
+(re-run the `node pokemon-showdown start` command) after a server-side
+change.
+
+**When you're done testing**, stop the local server before doing anything
+else with that port:
+```
+netstat -ano | findstr :8000        # (PowerShell/cmd) find the PID on port 8000
+taskkill /PID <pid> /F
+```
+Only commit and push once you're satisfied locally - that's what actually
+reaches the Pi.
+
 ## Deploying changes
 
 **Server-side changes** (format rules, ban lists, mod/sim code, etc.):
