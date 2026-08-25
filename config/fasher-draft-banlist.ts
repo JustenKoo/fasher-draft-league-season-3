@@ -90,6 +90,8 @@ export const FasherDraftBanlist: string[] = [
 	// Other Banned Mons
 	'Unown',
 	'Shedinja',
+	'Dragapult',
+	'Zygarde',
 
 	// New Megas - Unreleased
 	'Absol-Mega-Z',
@@ -107,5 +109,8 @@ export const FasherDraftBanlist: string[] = [
 	'Latias-Mega',
 	'Metagross-Mega',
 	'Raichu-Mega-Y',
+	'Alakazam-Mega',
+	'Kangaskhan-Mega',
+	'Starmie-Mega',
 
 ];
