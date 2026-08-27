@@ -123,7 +123,7 @@ export const FasherDraftPointValues: { [species: string]: FasherPointEntry } = {
 	'Slowpoke-Galar': { cost: 1 },
 	'Slowbro': { cost: 15 },
 	'Slowbro-Galar': { cost: 6 },
-	'Slowbro-Mega': { cost: 10 },
+	'Slowbro-Mega': { cost: 14 },
 	'Magnemite': { cost: 1 },
 	'Magneton': { cost: 3 },
 	'Farfetch’d': { cost: 1 },
