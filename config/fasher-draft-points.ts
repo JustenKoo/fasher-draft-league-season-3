@@ -1315,3 +1315,8 @@ export const FASHER_DRAFT_MAX_SIZE = 12;
 // applied). There is no combined points cap on the two captains - only the
 // main budget above and this per-Pokemon cap on the secondary.
 export const FASHER_SECONDARY_CAPTAIN_MAX_COST = 7;
+
+// A box may have at most this many Pokemon whose own listed cost (before
+// any Tera Captain tax) is FASHER_EXPENSIVE_MON_MIN_COST or higher.
+export const FASHER_MAX_EXPENSIVE_MONS = 3;
+export const FASHER_EXPENSIVE_MON_MIN_COST = 15;

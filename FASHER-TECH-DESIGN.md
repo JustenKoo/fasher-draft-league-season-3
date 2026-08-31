@@ -125,6 +125,22 @@ reasoning). A name that's genuinely still connected elsewhere is unaffected
 *different* person the instant a session drops, since password-protected
 reconnects don't depend on IP or connection state at all.
 
+**Surviving a page refresh.** Stock PS survives a refresh via a signed
+cookie/token that lets the client silently re-authenticate through the login
+server the moment the page loads (the `upkeep` query in
+`panel-mainmenu.tsx`'s `challstr` handler) - no login server here means that
+call always comes back empty, and without anything else, every refresh
+reset to a brand new anonymous guest, no way back except retyping the name
+(or `/pwlogin` password) from scratch every single time. `PSUser.saveLogin()`
+(`client-main.ts`) is the fallback: it stashes the last successful
+name+password (if any) in `localStorage` on every successful login, and
+`PSUser.restoreSavedLogin()` fires it back as an automatic `/trn` or
+`/pwlogin` the moment the real login server's `upkeep` check comes back
+empty - so a refresh actually restores who you were instead of dropping you.
+Storing a password in plain `localStorage` is a real, deliberate tradeoff
+for convenience on what's already a low-security local password system (see
+above) - fine for a personal device, worth knowing if the device is shared.
+
 ### Teambuilder / Draft Plan Mode
 
 The teambuilder is entirely client-side rendering
@@ -157,6 +173,14 @@ Two custom mechanics exist only for boxes in Draft Plan Mode:
   bypass a client-only gate). There is deliberately no combined points cap
   across the two captains - that used to exist (`FASHER_CAPTAIN_BUDGET`) but
   was removed by league decision.
+- **Expensive-mon cap** — a box may have at most `FASHER_MAX_EXPENSIVE_MONS`
+  Pokémon whose own listed cost (before any Tera Captain tax) is
+  `FASHER_EXPENSIVE_MON_MIN_COST` or higher (both in
+  `config/fasher-draft-points.ts`). Same client+server enforcement pattern
+  as the Secondary Tera Captain cap above -
+  `TeamEditorState.canAddSpecies()` blocks adding a 4th on the client, and
+  `server/fasher-draft-validate.ts` rejects it independently for a
+  hand-edited/pasted box.
 
 Validating a box needed a dedicated server command,
 `/draftvalidate` (`server/fasher-draft-validate.ts` +

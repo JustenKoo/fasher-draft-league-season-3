@@ -18,7 +18,7 @@ import type { ModdedDex } from '../sim/dex';
 import { Teams, type PokemonSet } from '../sim/teams';
 import {
 	FasherDraftPointValues, FASHER_DRAFT_BUDGET, FASHER_SECONDARY_CAPTAIN_MAX_COST,
-	FASHER_DRAFT_MIN_SIZE, FASHER_DRAFT_MAX_SIZE,
+	FASHER_DRAFT_MIN_SIZE, FASHER_DRAFT_MAX_SIZE, FASHER_MAX_EXPENSIVE_MONS, FASHER_EXPENSIVE_MON_MIN_COST,
 } from '../config/fasher-draft-points';
 
 // These are real TeamValidator messages (see sim/team-validator.ts), but
@@ -72,6 +72,14 @@ export function validateDraftBox(packedTeam: string, formatid: string): string {
 		problems.push(`Your Draft Plan has ${boxSize} Pokemon, but the minimum is ${FASHER_DRAFT_MIN_SIZE}.`);
 	} else if (boxSize > FASHER_DRAFT_MAX_SIZE) {
 		problems.push(`Your Draft Plan has ${boxSize} Pokemon, but the maximum is ${FASHER_DRAFT_MAX_SIZE}.`);
+	}
+
+	const expensiveMons = team.filter(set => set.species && baseDraftCost(set, validator.dex) >= FASHER_EXPENSIVE_MON_MIN_COST);
+	if (expensiveMons.length > FASHER_MAX_EXPENSIVE_MONS) {
+		problems.push(
+			`Your Draft Plan has ${expensiveMons.length} Pokemon worth ${FASHER_EXPENSIVE_MON_MIN_COST}+ points ` +
+			`(${expensiveMons.map(set => set.species).join(', ')}), but the maximum is ${FASHER_MAX_EXPENSIVE_MONS}.`
+		);
 	}
 
 	let spent = 0;
