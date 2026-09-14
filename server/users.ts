@@ -1557,7 +1557,12 @@ export class User extends Chat.MessageContext {
 		const throttleDelay = this.isPublicBot ? THROTTLE_DELAY_PUBLIC_BOT : this.trusted ? THROTTLE_DELAY_TRUSTED :
 			THROTTLE_DELAY;
 
-		if (this.chatQueue.length) {
+		// Chat.parse above can have side effects that disconnect or destroy
+		// this same user (e.g. an auto-lock filter triggering on their own
+		// message), both of which call clearChatQueue() and null out
+		// this.chatQueue - re-check with optional chaining rather than
+		// assuming it's still the array it was before Chat.parse ran.
+		if (this.chatQueue?.length) {
 			this.chatQueueTimeout = setTimeout(() => this.processChatQueue(), throttleDelay);
 		} else {
 			this.chatQueue = null;
