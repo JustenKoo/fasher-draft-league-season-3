@@ -263,6 +263,21 @@ server file exists to route around something that normally assumes one
 exists. When something in this codebase looks like it's reinventing a stock
 PS feature in a much simpler way, that's almost always why.
 
+Not every instance of this needed a new Fasher-specific file, though -
+sometimes the fix is a small bypass inline in stock code. Two examples in
+`server/chat.ts` (the `/pm` registered-or-autoconfirmed gate) and
+`server/chat-commands/moderation.ts` (`runPromote()`'s registered check):
+both exist to stop things that make sense on Smogon's real server (guest PM
+spam; a promoted guest name later being reclaimed by someone else who'd
+inherit the rank) but can never be satisfied here, since "registered" isn't
+a status any account on this deployment can ever reach. Both are bypassed
+with `if (!Config.noguestsecurity && ...)`, matching a pattern already used
+elsewhere in `chat.ts` for the same reason. This is also what makes
+`/invite` (inviting a spectator into a Private battle) work - it's
+implemented as a PM containing an embedded `/roomvoice`-driven promotion
+under the hood, so it silently failed for anyone who wasn't already
+staff/trusted until both of these were fixed.
+
 ## Known gotchas / sharp edges
 
 Things that have actually caused real bugs on this project, collected here

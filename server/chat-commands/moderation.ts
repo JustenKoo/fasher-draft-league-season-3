@@ -50,7 +50,18 @@ export function runPromote(
 	if (!targetUser && !Users.isUsernameKnown(userid) && !force) {
 		throw new Chat.ErrorMessage(`User '${username}' is offline and unrecognized, and so can't be promoted.`);
 	}
-	if (targetUser && !targetUser.registered) {
+	// Fasher Draft League: same reasoning as the noguestsecurity bypass in
+	// server/chat.ts's PM registration gate - "registered" can never be true
+	// for anyone here (no login server), so this check would otherwise block
+	// every /roomvoice/roompromote on this deployment, including the
+	// auto-promote step /invite relies on to let a non-staff player's
+	// invitee into their private battle. The risk this guards against (a
+	// promoted guest name later being reclaimed by someone else, who'd
+	// inherit the rank) still exists here, but it's the same risk
+	// noguestsecurity already accepts for every unprotected name regardless
+	// of rank - not something this check meaningfully adds protection
+	// against on this kind of deployment.
+	if (!Config.noguestsecurity && targetUser && !targetUser.registered) {
 		throw new Chat.ErrorMessage(`User '${username}' is unregistered, and so can't be promoted.`);
 	}
 

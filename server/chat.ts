@@ -1213,15 +1213,31 @@ export class CommandContext extends MessageContext {
 				}
 			}
 			if (targetUser) {
+				// Fasher Draft League: this whole "registered or autoconfirmed"
+				// gate exists to stop disposable-guest-account PM spam on
+				// Smogon's real server - it doesn't hold up on a
+				// Config.noguestsecurity deployment like this one, where
+				// "registered" can never be true for anyone (no login
+				// server) and the same free-guest-claiming this gate would
+				// be defending against is already fully allowed by
+				// noguestsecurity itself. Left as-is (still enforced) for a
+				// non-noguestsecurity server. This also fixes /invite (see
+				// server/chat-commands/core.ts), which is implemented as a
+				// PM under the hood and was silently failing for the exact
+				// same reason for anyone who wasn't already staff/trusted.
+				//
 				// this accounts for users who are autoconfirmed on another alt, but not registered
-				if (!(user.registered || user.autoconfirmed)) {
+				if (!Config.noguestsecurity && !(user.registered || user.autoconfirmed)) {
 					this.sendReply(
 						this.tr`|html|<div class="message-error">You must be registered to send private messages.</div>` +
 						this.tr`You may register in the <button name="openOptions"><i class="fa fa-cog"></i> Options</button> menu.`
 					);
 					throw new Chat.Interruption();
 				}
-				if (targetUser.id !== user.id && !(targetUser.registered || targetUser.autoconfirmed)) {
+				if (
+					!Config.noguestsecurity &&
+					targetUser.id !== user.id && !(targetUser.registered || targetUser.autoconfirmed)
+				) {
 					throw new Chat.ErrorMessage(this.tr`That user is unregistered and cannot be PMed.`);
 				}
 				if (lockType && !targetUser.can('lock')) {
