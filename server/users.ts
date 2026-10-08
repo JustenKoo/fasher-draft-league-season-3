@@ -823,7 +823,7 @@ export class User extends Chat.MessageContext {
 		if (conflictUser) {
 			// unregistered users can only merge in limited situations
 			let canMerge = registered && conflictUser.registered;
-			if (!registered && !conflictUser.registered && !conflictUser.connected) {
+			if (!registered && !conflictUser.registered) {
 				// Fasher Draft League: stock PS also requires
 				// conflictUser.latestIp === this.latestIp here. That's a
 				// reasonable guardrail on Smogon's real server, where a login
