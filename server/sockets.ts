@@ -342,6 +342,14 @@ export class ServerStream extends Streams.ObjectReadWriteStream<string> {
 			// optionally with a `-{password}pw` suffix - see Room#getReplayData.
 			const replayIdRegex = /^\/[a-z0-9]+-[0-9]+(?:-[a-z0-9]+pw)?\/?(?:\?.*)?$/;
 			const replayJsonRegex = /^\/[a-z0-9]+-[0-9]+(?:-[a-z0-9]+pw)?\.json(?:\?.*)?$/;
+			// Fasher Draft League: a private replay's shared link/JSON url
+			// includes a `-{password}pw` suffix (see Room#getReplayData above),
+			// but config/replays/{id}.json (fasher-replays.ts) is always saved
+			// under the bare id - the password is stored as JSON data inside
+			// the file, not in the filename. Without stripping it here first,
+			// every private replay's data fetch 404s against the static file
+			// server even though the replay itself uploaded fine.
+			const stripReplayPassword = (url: string) => url.replace(/-[a-z0-9]+pw(\.json)/, '$1');
 			const cssServer = new StaticServer('./config');
 			const avatarServer = new StaticServer('./config/avatars');
 			// Fasher Draft League: local replay storage (see fasher-replays.ts) -
@@ -374,7 +382,7 @@ export class ServerStream extends Streams.ObjectReadWriteStream<string> {
 							// the /replays/{id} link a player shares, rather than
 							// the bare /{id}.json this server's own viewer uses -
 							// support both.
-							req.url = req.url.slice(8);
+							req.url = stripReplayPassword(req.url.slice(8));
 							server = replayDataServer;
 						} else if (req.url.startsWith('/replays/')) {
 							req.url = req.url.slice(8);
@@ -383,6 +391,7 @@ export class ServerStream extends Streams.ObjectReadWriteStream<string> {
 								req.url = '/testclient.html';
 							}
 						} else if (replayJsonRegex.test(req.url)) {
+							req.url = stripReplayPassword(req.url);
 							server = replayDataServer;
 						} else if (roomidRegex.test(req.url)) {
 							req.url = '/';
