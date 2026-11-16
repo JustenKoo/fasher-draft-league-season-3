@@ -23,6 +23,11 @@ export const FasherDraftComplexBanlist: FasherComplexBan[] = [
 		message: "Zygarde's ability Power Construct is banned.",
 	},
 	{
+		species: 'Zygarde-10%',
+		ability: 'Power Construct',
+		message: "Zygarde-10%'s ability Power Construct is banned.",
+	},
+	{
 		species: 'Ursaluna-Bloodmoon',
 		zMoveBanned: true,
 		message: "Ursaluna-Bloodmoon is Z-Move banned.",

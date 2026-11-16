@@ -91,7 +91,7 @@ export const FasherDraftBanlist: string[] = [
 	'Unown',
 	'Shedinja',
 	'Dragapult',
-	'Zygarde',
+	'Zygarde-Base',
 
 	// New Megas - Unreleased
 	'Absol-Mega-Z',
